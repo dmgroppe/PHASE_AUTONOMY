@@ -1,0 +1,54 @@
+===== 5/14/2012 8:46:33 AM: Job 'ML and DB ML': SYNC started by User on computer 'TAUFIKSSUPER' =====
+ML and DB ML: D:\Projects\MatLab\Analyze <-> C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze, SavePrevVers, CleanupPrevVers=30d, CleanupOldGens=12m, TmpDest, EstReq, CopyLocked, DetectMovesAndRenames, DetectFolderMoves, FileLinksDrill, Reconnect=3, ChangeLimit=10
+Locking folder D:\Projects\MatLab\Analyze for write
+Locking folder C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze for write
+Delete File 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\sl_sync_params.asv' (User Action)
+Delete File 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\timefreq_full_file.asv'
+Delete File 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\SMA\sync_ppc_fit.asv'
+Sync State: /Analyses/batch_matspec_atten_stats.m
+Sync State: /par_cvar_two_sided_perm.m
+Copy Over 'D:\Projects\MatLab\Analyze\Slice\abf_load.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\abf_load.m'
+Copy Over 'D:\Projects\MatLab\Analyze\Slice\check_file.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\check_file.m'
+Copy New 'D:\Projects\MatLab\Analyze\Slice\check_files.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\check_files.m'
+Sync State: /Slice/excel_read.asv
+Copy Over 'D:\Projects\MatLab\Analyze\Slice\excel_read.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\excel_read.m' (User Action)
+Copy Over 'D:\Projects\MatLab\Analyze\Slice\export_dir_get.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\export_dir_get.m'
+Copy Over 'D:\Projects\MatLab\Analyze\Slice\get_sf_val.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\get_sf_val.m'
+Sync State: /Slice/md_max.m
+Sync State: /Slice/md_min.m
+Copy New 'D:\Projects\MatLab\Analyze\Slice\ps_group.asv' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\ps_group.asv'
+Copy New 'D:\Projects\MatLab\Analyze\Slice\ps_group.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\ps_group.m'
+Copy Over 'D:\Projects\MatLab\Analyze\Slice\ps_slice.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\ps_slice.m'
+Copy Over 'D:\Projects\MatLab\Analyze\Slice\sl_mi.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\sl_mi.m'
+Copy Over 'D:\Projects\MatLab\Analyze\Slice\sl_sync_params.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\sl_sync_params.m' (User Action)
+Copy New 'D:\Projects\MatLab\Analyze\Slice\tags_get.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\tags_get.m'
+Copy Over 'D:\Projects\MatLab\Analyze\Slice\timefreq_full_file.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\timefreq_full_file.m' (User Action)
+Copy New 'D:\Projects\MatLab\Analyze\Slice\timefreq_segment.asv' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\timefreq_segment.asv'
+Copy New 'D:\Projects\MatLab\Analyze\Slice\timefreq_segment.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\timefreq_segment.m'
+Copy New 'D:\Projects\MatLab\Analyze\Slice\tlimits.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\Slice\tlimits.m'
+Close Modified Folder (mod-time, acl): /Slice
+Sync State: /SMA/amp_env.m
+Sync State: /SMA/analyze_SMA.m
+Sync State: /SMA/BS_sync.m
+Sync State: /SMA/FDR_corr.m
+Sync State: /SMA/FDR_corr_pop.m
+Sync State: /SMA/KL_distance.asv
+Copy Over 'D:\Projects\MatLab\Analyze\SMA\KL_distance.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\SMA\KL_distance.m'
+Sync State: /SMA/milti_square_plot.m
+Sync State: /SMA/ms_SMA.m
+Sync State: /SMA/plot_ppc.m
+Sync State: /SMA/run_BS_SMAstats.m
+Sync State: /SMA/save_figure.m
+Copy Over 'D:\Projects\MatLab\Analyze\SMA\sync_mi.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\SMA\sync_mi.m'
+Sync State: /SMA/sync_params.m
+Sync State: /SMA/sync_phase_power_corr_grid.m
+Sync State: /SMA/sync_ppc_trials_stats.m
+Copy New 'D:\Projects\MatLab\Analyze\SMA\wt_scales.m' -> 'C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\SMA\wt_scales.m'
+Close Modified Folder (mod-time, acl): /SMA
+Save State File D:\Projects\MatLab\Analyze\_gsdata_\_file_state_v4._gs
+Save State File C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\_gsdata_\_file_state_v4._gs
+Items Synced OK: 41, Errors: 0
+===== 5/14/2012 8:46:33 AM: Sync Completed. Time: 00:00:00, Speed:  =====
+Unlocking folder (set insync file) D:\Projects\MatLab\Analyze\_gsdata_\_insync_v4.gsl
+Unlocking folder (set insync file) C:\Users\Taufik\Dropbox\Hue Main\MatLab Code\Analyze\_gsdata_\_insync_v4.gsl
+

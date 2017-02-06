@@ -1,0 +1,16 @@
+function [cont] = continue_prompt(supress)
+
+if (nargin < 1); supress = 1; end;
+
+if (supress)
+    return;
+reply = input('Continue (y)es or n(o) [Y]:','s');
+if (isempty(reply))
+    reply = 'Y';
+end
+
+if (strcmp(upper(reply), 'Y'))
+    cont = 1;
+    return;
+end
+cont = 0;

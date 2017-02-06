@@ -1,0 +1,43 @@
+function [] = peak_test()
+
+file = ['D:\Projects\Data\Scene memory\TVA\Enc\' 'Cu sH CH1', '.mat'];
+
+load (file);
+
+[nfreq, npoints, nspectra] = size(spectra);
+
+cvar = abs(sum(spectra,3));
+
+figure(10);
+ax(1) = subplot(2,1,1);
+blsamples = time_to_samples(params.ana.baseline, params.data.srate);
+
+ncvar = normalize(cvar, blsamples);
+%cvar = norm_scalogram(cvar, (1./frq)*params.data.srate);
+x = get_x(npoints, params.data.srate);
+surf(x, 1:length(frq), ncvar);
+view(0,90);
+shading interp
+
+%rt = FindRidges(ncvar,frq, 50);
+rt = find_peaks(ncvar, 50);
+masked = rt.*ncvar;
+
+ax(2) = subplot(2,1,2);
+surf(x, 1:length(frq), rt);
+view(0,90);
+shading interp
+linkaxes(ax, 'xy');
+
+figure(11);
+reply = input('Enter frequency indices []:');
+while (~isempty(reply))
+    nridges = length(reply);
+    for i=1:nridges
+        ridges(i,:) = ncvar(reply(i),:);
+        legend_text(i) = sprintf('%4.0f',frq(reply(i)));
+    end
+    plot(x,ridges);
+    legend(legend_text);
+    
+end

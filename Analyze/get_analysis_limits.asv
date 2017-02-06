@@ -1,0 +1,35 @@
+function [alimit] = get_analysis_limits(ep_tag, params, sr, max_samples)
+
+% limits:   contains the as the first two elements as the beginning and end of
+%           the epoch, and the third and fourth values are amount of data to place on either
+%           side of the epoch
+
+alimit.ep_start = time_to_samples(ep_tag.limits(1), sr);
+alimit.ep_end = time_to_samples(ep_tag.limits(2), sr);
+
+if 
+
+if (~params.ana.append_data)   
+    alimit.prefix = 0;
+    alimit.suffix  = 0;
+    return
+end
+
+max_scale = max(get_scales(params, sr));
+npad_samples = max_scale*params.ana.ncycles_of_lowest;
+
+if ((ep_tag.limits(1) - npad_samples) < 1)
+    alimit.prefix = ep_tag.limits(1)-1;
+else
+    alimit.prefix = npad_samples;
+end
+
+if ((ep_tag.limits(2) + npad_samples) > max_samples)
+    alimit.suffix = max_samples-(ep_tag.limits(2)-1);
+else
+    alimit.suffix = npad_samples;
+end
+
+    
+
+

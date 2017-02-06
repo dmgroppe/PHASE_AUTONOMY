@@ -1,0 +1,23 @@
+function [] = mse_stats(SE, p, roi)
+
+Rroi = stats(SE, p, roi);
+h = figure(1);
+set(h, 'Name', 'ROI stats');
+
+
+
+
+function [R] = stats(SE, roi)
+
+R.avgs = squeeze(mean(SE(roi,:,:)));
+R.stds = squeeze(std(SE(roi,:,:)));
+
+
+function [] = plot_mse_stats(R, p)
+
+color_list = {'b', 'r', 'g', 'm', 'y'};
+x = 1:size(R.amps,2);
+for i=1:numel(p.condlist)
+    boundedline(x, R.amps(i,:), R.stds(i,:)*1.96/sqrt(length(roi)), color_list{i}, 'transparency', 0.5);
+end
+axis([freqs(1) freqs(end-1) 0 0.5]);

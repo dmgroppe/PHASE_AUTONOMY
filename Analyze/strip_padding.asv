@@ -1,0 +1,16 @@
+function [stripped] = strip_padding(padded_data, alimit_list, dparams, strip_baseline)
+
+if (nargin < 3); strip_baseline = 0; end;
+
+nepochs = size(padded_data,1);
+base_line_samples = time_to_samples(dparams.ana.baseline, dparams.data.srate);
+
+for i=1:nepochs
+    if (strip_baseline)
+        dstart = alimit_list{i.prefix;
+    else
+        dstart = alimit_list(i).prefix - base_line_samples;
+    end
+    dend = alimit_list(i).prefix+(alimit_list(i).ep_end-alimit_list(i).ep_start)-1;
+    stripped(i,:) = padded_data(i, dstart:dend);
+end

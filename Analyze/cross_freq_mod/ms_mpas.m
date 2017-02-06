@@ -1,0 +1,66 @@
+% Usage: [mod_phase_as, mod_str_as] = ms_mpas(sf, mod_phase)
+%
+%   Computes the MS with MP within conditions
+%
+%   sf:         Subject file info
+%   param_list: Param list for all subjects and consitions
+%   frq:        List of frequencies
+%   mod_phase:  Pre-computed mod_phase - cell array for conditions
+%
+%   Output:
+%           mod_str_as: Cell of MS for each condition and subject
+%-------------------------------------------------------------------------
+
+function [mod_phase_as, mod_str_as] = ms_mpas(sf, mod_phase)
+
+sub_spectra = cell(2,1);
+spectra = [];               % Loaded from file
+
+nsubjects = size(mod_phase,1);
+nfrq = length(mod_phase{1,1});
+mp = zeros(nfrq, nfrq);
+ms = zeros(nfrq, nfrq);
+mod_phase_as = cell(2,1);
+mod_str_as = cell(nsubjects,2);
+
+% Might consider here to normalize each MP to the maximum MS for that
+% subject.
+
+for i=1:2
+    mp(:,:) = 0;
+    for j=1:nsubjects
+        mp = mp + mod_phase{j,i};
+    end
+    mod_phase_as{i} = mp/nsubjects;
+end
+
+% Now have the MP across subjects for each condition now recompute the MS
+% for each subject
+display('Computing MS across subjects, for MP within conditions')
+for i=1:nsubjects
+    display(sprintf(' Subject %d', i));
+    % Compute for condition 1
+    cond = 1;
+    load(sf{cond}.files{i});
+    bl_samples = time_to_samples(params.ana.baseline, params.data.srate);
+    sub_spectra{cond} = spectra(:,(bl_samples+1):end,:);
+
+    display('  Condition 1');
+    ms(:,:) = 0;
+    for j=1:size(sub_spectra{cond},3)
+        ms = ms + mod_strength(sub_spectra{cond}(:,:,j),mod_phase_as{cond});
+    end
+    mod_str_as{i,cond} = ms/size(sub_spectra{cond},3);
+    
+    % Compute for condition 2
+    cond = 2;
+    display('  Condition 2');
+    load(sf{cond}.files{i});
+    sub_spectra{cond} = spectra(:,(bl_samples+1):end,:);
+    ms(:,:) = 0;
+
+    for j=1:size(sub_spectra{cond},3)
+        ms = ms + mod_strength(sub_spectra{cond}(:,:,j),mod_phase_as{cond});
+    end
+    mod_str_as{i,cond} = ms/size(sub_spectra{cond},3);
+end

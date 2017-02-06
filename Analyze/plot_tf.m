@@ -1,0 +1,81 @@
+% Usage: [] = plot_spectrum(ws, frq, sr, params, tcut)
+
+function [] = plot_tf(spectra, frq, sr, params, tcut)
+
+if (nargin < 5)
+    tcut = 0;
+    nplots = 2;
+else
+    nplots = 3;
+end
+
+set(gcf, 'Renderer', 'zbuffer');
+
+[nscales npoints nspectra] = size(spectra);
+x = get_x(npoints, sr) - params.ana.baseline;
+blsamples = time_to_samples(params.ana.baseline, sr);
+
+% plot the Circular variance
+
+cvar = abs(sum(spectra, 3))/nspectra;
+if (params.disp.norm_to_baseline)
+    cvar = norm_to_bl(cvar, blsamples);
+end
+
+ax(1) = subplot(nplots,1,1);
+surf(x, frq, cvar);
+axis([x(1) x(end) frq(1) frq(end) min(min(cvar)) max(max(cvar))]);
+view(0,90);
+shading interp;
+colorbar
+xlabel('Time (ms)')
+ylabel('Frequnecy (Hz)');
+title('CVar - normalized');
+
+% plot the POWER
+
+p = mean(abs(spectra).^2, 3);
+if (params.disp.norm_to_baseline)
+    p = norm_to_bl(p, blsamples);
+end
+
+ax(2) = subplot(nplots,1,2);
+surf(x, frq, p);
+axis([x(1) x(end) frq(1) frq(end) min(min(p)) max(max(p))]);
+view(0,90);
+shading interp;
+colorbar
+xlabel('Time (ms)')
+ylabel('Frequnecy (Hz)');
+title('Power - normalized');
+
+linkaxes(ax, 'xy');
+
+if (tcut)
+    [rho,pval] = corr(p,cvar);
+    drho = diag(rho);
+    dp = diag(pval);
+    
+    %{
+    cut_sample = time_to_samples(tcut, sr);
+
+    p_cut = p(:, cut_sample);
+    cvar_cut = cvar(:,cut_sample);
+
+    ymax = max([max(cvar_cut) max(p_cut)]);
+    ymin = min([min(cvar_cut) min(p_cut)]);
+
+    subplot(nplots,1,3);
+    plot(frq, p_cut, frq, cvar_cut);
+    axis([frq(1) frq(end) ymin ymax]);
+    xlabel('Frequency (Hz)');
+    ylabel('Magnitude');
+    legend('Power','CVar');
+    %}
+    subplot(nplots,1,3);
+    plot(x, drho, x, dp);
+    %axis([frq(1) frq(end) ymin ymax]);
+    legend('rho','p  ')
+    
+end
+

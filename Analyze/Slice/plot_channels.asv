@@ -1,0 +1,28 @@
+function [] = plot_channels(S, nfig)
+
+h = figure(nfig);
+
+nchan = size(S.data,1);
+
+for i=1:nchan
+    ax(i) = subplot(nchan, 1, i);
+    plot(S.data(i,:));
+end
+
+linkaxes(ax, 'xy');
+
+
+a = linear_scale(params.tf.fstart:params.tf.finc:params.tf.fend, sr);
+
+
+figure(nfig+1);
+x=1:length(S.data);
+labels.x = 'Sample points';
+labels.y = 'Freq (Hz)';
+labels.title = 'TF plot'
+
+for i=1:nchan
+    
+    [wt, freq] = twt(S.data(i,:), S.srate, a, 5);
+    generic_tf_plot(x, freq, wt, labels)
+end

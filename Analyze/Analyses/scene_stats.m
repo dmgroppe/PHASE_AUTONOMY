@@ -1,0 +1,376 @@
+function [] = scene_stats(exp_info)
+
+incl_pl_calcs = exp_info.incl_pl_calcs;
+
+% These are the analysis parameters, not to be confused with the params
+% variable that is read in each time one of the analysis files is read in.
+
+aparams = get_default_params();
+aparams.ana.pschannels = exp_info.pschannels;
+
+test = exp_info.test;
+cond1 = exp_info.cond1;
+cond2 = exp_info.cond2;
+anat_loc = exp_info.anat_loc;
+analysis = exp_info.analysis;  % this can be 'tf' or 'comod' or 'ps' (phase synchrony)
+pschannels = exp_info.pschannels;
+
+sf1 = summary_file_list(test, cond1, anat_loc);
+sf2 = summary_file_list(test, cond2, anat_loc);
+nsubjects = sf1.nsubjects;
+
+if (strcmp(analysis, 'tf')) 
+    % Precomputed file name
+    plFile = sprintf('D:\\Projects\\Data\\Scene memory\\TVA\\%s\\%s %s.mat', test, anat_loc, test);
+    % means d1 = subjects, d2 = 1 - power, 2 - cvar, d3, cond1 or cond2
+    means = cell(sf1.nsubjects,2,2);
+    param_list = cell(sf1.nsubjects,2);
+    
+    if (exist(plFile, 'file') && incl_pl_calcs)
+        load(plFile)
+        display('Analysis load from file.');
+    else
+        for i=1:sf1.nsubjects
+            load(sf1.files{i});
+            param_list{i,1} = params;
+            bl_samples = time_to_samples(param_list{1,1}.ana.baseline, param_list{1,1}.data.srate);
+            means{i,1,1} = norm_to_bl(mean(abs(spectra).^2, 3), bl_samples);        % Average power
+            if (~incl_pl_calcs)
+                means{i,2,1} = norm_to_bl(1-abs(sum(spectra, 3)), bl_samples); % Circular variance or PL
+            else
+                display(sprintf('Computing PL statistics for condition 1, subject %d of %d', i, sf1.nsubjects));
+                means{i,2,1} = norm_to_bl(compute_pl(spectra, params),bl_samples);
+            end
+
+            load(sf2.files{i});
+            param_list{i,2} = params;
+            means{i,1,2} = norm_to_bl(mean(abs(spectra).^2, 3),bl_samples);       % Average power
+            if (~incl_pl_calcs)
+                means{i,2,2} = norm_to_bl(1-abs(sum(spectra, 3)), bl_samples); % Circular variance or PL
+            else
+                display(sprintf('Computing PL statistics for condition 2, subject %d of %d', i, sf2.nsubjects));
+                means{i,2,2} = norm_to_bl(compute_pl(spectra, params),bl_samples);          % Circular variance or PL
+            end
+        end
+        if (incl_pl_calcs)
+            save(plFile, 'means', 'params', 'frq');
+        end
+    end
+    
+    [nfrq, npoints] = size(means{1,1,1});
+    
+    cvar = zeros(nfrq, npoints,2);
+    power = zeros(nfrq, npoints,2);
+    
+    for i=1:sf1.nsubjects
+        power(:,:,1) = power(:,:,1) + means{i,1,1};
+        cvar(:,:,1) = cvar(:,:,1) + means{i,2,1};
+        power(:,:,2) = power(:,:,2) + means{i,1,2};
+        cvar(:,:,2) = cvar(:,:,2) + means{i,2,2};
+        
+    end
+    power = power/sf1.nsubjects;
+    cvar = cvar/sf1.nsubjects;
+    
+    z1max = max(max(max(power)));
+    z1min = min(min(min(power)));
+    
+    z2max = max(max(max(cvar)));
+    z2min = min(min(min(cvar)));
+    
+    h = figure(1);
+    title = sprintf('%s %s %s', anat_loc, test, cond1);
+    set(h, 'Name', title);
+    
+    
+    x = get_x(length(power), params.data.srate)-params.ana.baseline;
+    labels1.x = 'Time (ms)';
+    labels1.y = 'Freq (Hz)';
+    labels1.title = 'Normalized power';
+    labels1.z.max = z1max;
+    labels1.z.min = z1min;
+    
+    labels2 = labels1;
+    
+    labels2.z.max = z2max;
+    labels2.z.min = z2min;
+    if (incl_pl_calcs)
+        labels2.title = 'Normalized PL';
+    else
+        labels2.title = 'Normalized CVar';
+    end
+    
+    plot_result(x, frq, power(:,:,1), cvar(:,:,1), labels1, labels2);
+      
+    h = figure(2);
+    title = sprintf('%s %s %s', anat_loc, test, cond2);
+    set(h, 'Name', title);
+    plot_result(x, frq, power(:,:,2), cvar(:,:,2), labels1, labels2);
+    
+    params.stats.tbin_width = 100;
+    
+    for i=1:sf1.nsubjects
+        c1(:,:,i) = means{i,1,1};
+        c2(:,:,i) = means{i,1,2};
+    end
+    
+    for i=1:sf1.nsubjects
+        ph1(:,:,i) = means{i,2,1};
+        ph2(:,:,i) = means{i,2,2};
+    end
+    
+    % Do the statistics on the POWER spectra
+    
+    if(strcmp(exp_info.tfshow, 'power'))
+    
+        h = figure(3);
+        title = sprintf('%s %s POWER', anat_loc, test);
+        set(h, 'Name', title);
+        tf_stats(c1, c2, frq, params);
+        
+        h = figure(4);
+        title = sprintf('%s %s POWER', anat_loc, test);
+        set(h, 'Name', title);
+        tf_stats(c1, ones(nfrq, npoints, nsubjects), frq, params);
+        
+        h = figure(5);
+        title = sprintf('%s %s POWER', anat_loc, test);
+        set(h, 'Name', title);
+        tf_stats(ones(nfrq, npoints, nsubjects), c2, frq, params);
+        
+        % Do SPECIFIC freq stats on POWER ------------------------------------
+        display('Specific freq POWER stats ----');
+        h = figure(6);
+        title = sprintf('%s %s POWER', anat_loc, test);
+        set(h, 'Name', title);
+        spec_freq_stats(c1, c2, frq, params, [0 3]);
+        
+    else
+    
+    % Do the statistics on the PL or CVAR spectra ------------------------
+    
+        h = figure(3);
+    
+        if (incl_pl_calcs)
+            title = sprintf('%s %s PL', anat_loc, test);
+        else
+            title = sprintf('%s %s CVAR', anat_loc, test);
+        end
+        set(h, 'Name', title);
+        tf_stats(ph1, ph2, frq, params);
+        display(sprintf('Blue bar = %s, red bar = %s', cond1, cond2));
+        
+        h = figure(4);
+    
+        if (incl_pl_calcs)
+            title = sprintf('%s %s PL', anat_loc, test);
+        else
+            title = sprintf('%s %s CVAR', anat_loc, test);
+        end
+        set(h, 'Name', title);
+        tf_stats(ph1, ones(nfrq, npoints, nsubjects), frq, params);
+        display(sprintf('Blue bar = %s, red bar = %s', cond1, cond2));
+        
+        h = figure(5);
+    
+        if (incl_pl_calcs)
+            title = sprintf('%s %s PL', anat_loc, test);
+        else
+            title = sprintf('%s %s CVAR', anat_loc, test);
+        end
+        set(h, 'Name', title);
+        tf_stats(ones(nfrq, npoints, nsubjects), ph2, frq, params);
+        display(sprintf('Blue bar = %s, red bar = %s', cond1, cond2));
+    
+    
+        % Do SPECIFIC freq stats on PL or CVAR --------------------------------
+        display('Specific freq CVAR or PL stats ----');
+        h = figure(6);
+        if(incl_pl_calcs)
+        dt = 'PL';
+        else
+            dt = 'CVAR';
+        end
+        title = sprintf('%s %s %s - Specific frequency stats', anat_loc, test, dt);
+        set(h, 'Name', title);
+        spec_freq_stats(ph1, ph2, frq, params, [0 3]);
+    end
+    
+    % Analyze the ridges in the CVAR or PL spectra -----------------------
+%     params.ridges.per = per;
+%     params.ridges.ncycles = ncycles;
+%     
+%     h = figure(5);
+%     if(incl_pl_calcs)
+%         dt = 'PL';
+%     else
+%         dt = 'CVAR';
+%     end
+%     title = sprintf('%s %s %s - Ridge statistics', anat_loc, test, dt);
+%     set(h, 'Name', title);
+%     ridge_stats(c1, c2, frq, params);  
+        
+elseif (strcmp(analysis, 'tf'))
+    precompFile = sprintf('D:\\Projects\\Data\\Scene memory\\TVA\\%s\\%s %s comod.mat', test, anat_loc, test);
+    exp_info.precompFile = precompFile;
+    if (exist(precompFile, 'file'))
+        % load the precomputed MS and MP of the data
+        load(precompFile);
+    else
+        [param_list, frq, mod_phase, mod_str, mod_str_comb, mod_phase_as, mod_str_as] = comod_from_files({sf1;sf2}, exp_info, 'plot');
+    end
+    
+    % Just this one time to
+    %[mod_phase_as, mod_str_as] = ms_mpas({sf1;sf2}, mod_phase);
+    %save(exp_info.precompFile,'mod_phase', 'mod_str', 'mod_str_comb', 'mod_phase_as', 'mod_str_as', 'exp_info', 'frq', 'param_list');
+   
+    nsubjects = size(mod_phase,1);
+    nfrq = length(mod_phase{1,1});
+    msavg = cell(2,1);
+    mscavg = cell(2,1);
+    msasavg = cell(2,1);
+    ms = zeros(nfrq, nfrq);
+    msc = zeros(nfrq, nfrq);
+    msas = zeros(nfrq, nfrq);
+    
+    % average over the subjects to get the MS
+    for j=1:2
+        ms(:,:) = 0;
+        msc(:,:) = 0;
+        msas(:,:) = 0;
+        for i=1:nsubjects
+            ms = ms + mod_str{i,j};
+            msc = msc + mod_str_comb{i,j};
+            msas = msas + mod_str_as{i,j};
+        end
+        msavg{j} = ms/nsubjects;
+        mscavg{j} = msc/nsubjects;
+        msasavg{j} = msas/nsubjects;
+    end
+
+    carange = [0 .05];
+%     h = figure(1);
+%     title = sprintf('%s %s %s COMOD - indep MP', exp_info.anat_loc, exp_info.test, exp_info.cond1);
+%     set(h, 'Name', title);   
+%     plot_cfmodulation(mod_phase{i,1}, msavg{1}, param_list{1,1}, frq, carange);
+%     
+%     h = figure(2);
+%     title = sprintf('%s %s %s COMOD - indep MP', exp_info.anat_loc, exp_info.test, exp_info.cond2);
+%     set(h, 'Name', title);   
+%     plot_cfmodulation(mod_phase{i,2}, msavg{2}, param_list{1,2}, frq, carange);
+    
+    % MS with MP within subjects
+    mp = [];        % mp not really defined here as it is different for each subject 
+    h = figure(1);
+    title = sprintf('%s %s %s COMOD', exp_info.anat_loc, exp_info.test, exp_info.cond1);
+    set(h, 'Name', title);   
+    plot_cfmodulation(mp, mscavg{1}, param_list{1,1}, frq, carange);
+    
+    h = figure(2);
+    title = sprintf('%s %s %s COMOD', exp_info.anat_loc, exp_info.test, exp_info.cond2);
+    set(h, 'Name', title);   
+    plot_cfmodulation(mp, mscavg{2}, param_list{1,2}, frq, carange);
+    
+    % MS with MP across subjects
+    
+%     h = figure(5);
+%     title = sprintf('%s %s %s COMOD MPAS', exp_info.anat_loc, exp_info.test, exp_info.cond1);
+%     set(h, 'Name', title);   
+%     plot_cfmodulation(mod_phase_as{1}, msasavg{1}, param_list{1,1}, frq, carange);
+%     
+%     h = figure(6);
+%     title = sprintf('%s %s %s COMOD MPAS', exp_info.anat_loc, exp_info.test, exp_info.cond2);
+%     set(h, 'Name', title);   
+%     plot_cfmodulation(mod_phase_as{2}, msasavg{2}, param_list{1,2}, frq, carange);
+    
+    comod_stats(frq, param_list, mod_phase, mod_str_comb)
+else
+    precompFile = sprintf('D:\\Projects\\Data\\Scene memory\\TVA\\%s\\%s-%s PS.mat',...
+        test, exp_info.pschannels{1}, exp_info.pschannels{2});
+    if (exist(precompFile,'file'))
+        display(sprintf('Loading data from file: %s', precompFile));
+        load(precompFile);
+    else
+        % r = anatomical location, c = conditions
+        sf{1,1} = summary_file_list(test, cond1, exp_info.pschannels{1});
+        sf{2,1} = summary_file_list(test, cond1, exp_info.pschannels{2});
+        sf{1,2} = summary_file_list(test, cond2, exp_info.pschannels{1});
+        sf{2,2} = summary_file_list(test, cond2, exp_info.pschannels{2});
+    
+        [pl, plm frq, indicies, dparams] = phase_sync(sf, aparams);
+    
+        save(precompFile, 'pl', 'plm', 'exp_info','aparams', 'frq', 'indicies', 'dparams');
+    end
+    
+    nsubjects = length(pl);
+    [nfrq, npoints] = size(pl{1,1});
+    
+    ps1 = zeros(nfrq, npoints, nsubjects);
+    ps2 = zeros(nfrq, npoints, nsubjects);
+    bl_samples = time_to_samples(dparams.ana.baseline, dparams.data.srate);
+    for i=1:nsubjects
+        ps1(:,:,i) = norm_to_bl(pl{1,i}, bl_samples);
+        ps2(:,:,i) = norm_to_bl(pl{2,i}, bl_samples);
+    end
+    
+    avg1 = mean(ps1,3);
+    avg2 = mean(ps2,3);
+    
+    h = figure(1);
+    set(h, 'Name', sprintf('%s %s-%s, PS', exp_info.test,...
+        exp_info.pschannels{1}, exp_info.pschannels{2}));
+    
+    ax(1) = subplot(2,1,1);
+    x = get_x(npoints, dparams.data.srate) - dparams.ana.baseline;
+    labels1.x = 'Time (ms)';
+    labels1.y = 'Freq (Hz)';
+    labels1.title = sprintf('%s %s %s-%s, Normalized Phase Synchrony', exp_info.test,...
+        exp_info.cond1, exp_info.pschannels{1}, exp_info.pschannels{2});
+    labels1.z.max = max([max(max(avg1)) max(max(avg2))]);
+    %labels1.z.min = min([min(min(avg1)) min(min(avg2))]);
+    labels1.z.min = 1;
+     
+    labels2 = labels1;
+    labels2.title = sprintf('%s %s %s-%s, Normalized Phase Synchrony', exp_info.test,...
+        exp_info.cond2, exp_info.pschannels{1}, exp_info.pschannels{2});
+    
+    plot_result(x, frq, avg1, avg2, labels1, labels2);
+    colormap hot;
+    
+    h = figure(2);
+    set(h, 'Name', sprintf('%s %s-%s, PS STATS', exp_info.test,...
+        exp_info.pschannels{1}, exp_info.pschannels{2}));
+    tf_stats(ps1, ps2, frq, dparams);
+    
+    h = figure(3);
+    set(h, 'Name', sprintf('%s %s-%s, PS STATS', exp_info.test,...
+        exp_info.pschannels{1}, exp_info.pschannels{2}));
+    tf_stats(ps1, ones(nfrq, npoints, nsubjects), frq, dparams);
+    
+    h = figure(4);
+    set(h, 'Name', sprintf('%s %s-%s, PS STATS', exp_info.test,...
+        exp_info.pschannels{1}, exp_info.pschannels{2}));
+    tf_stats(ones(nfrq, npoints, nsubjects), ps2, frq, dparams);
+    
+    h = figure(5);
+    set(h, 'Name', sprintf('%s %s-%s, Specific freq', exp_info.test,...
+        exp_info.pschannels{1}, exp_info.pschannels{2}));
+    spec_freq_stats(ps1, ps2, frq, dparams, [0 3]);
+    
+    % Plot phase histograms and do stats on them
+    figure(6);
+    phase_tf_histogram(plm, dparams);
+    
+     
+end
+
+function [] = plot_result(x, y, s1, s2, labels1, labels2)
+
+ax(1) = subplot(2,1,1);
+generic_tf_plot(x, y, s1, labels1);
+    
+ax(2) = subplot(2,1,2);
+generic_tf_plot(x, y, s2, labels2);
+linkaxes(ax, 'xy');
+
+

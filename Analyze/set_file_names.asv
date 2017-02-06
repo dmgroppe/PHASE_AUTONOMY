@@ -1,0 +1,5 @@
+function [params] = set_file_names(params)
+
+params.ana.dataDir = sprintf('D:\Projects\Data\Scene memory\Data\%s\%s\', params.data.subjectname, params.data.test);
+params.ana.dataFile = sprintf('%s %s.mat', params.data.subjectname, params.data.test);
+params.ana.tagFile = sprintf('%s %s tags.txt',params.data.subjectname, params.data.test);

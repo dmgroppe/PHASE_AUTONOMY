@@ -1,0 +1,78 @@
+function []  = batch_sc_atten_stats()
+
+aparams = get_default_params();
+
+alpha = 0.025;
+nsurr = 2000;
+channel1 = 9;
+aparams.ana.chlist = [9 27];
+
+aparams.ana.nsurr = nsurr;
+aparams.ana.subjectname = 'Bonner';
+aparams.ana.atten_channel = channel1;
+
+% 'norm_baseline', 'sub_baseline', '';
+aparams.ana.norm = '';
+aparams.ana.atten_sc_bl = 'within_test'; % 'within_cond', 'within_test', ''
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  SCENES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Attend
+aparams.ana.test = 'scene';
+aparams.ana.cond = 'scene';  % Can be face or scene
+aparams.ana.test_index = [1 2];
+display_analysis(aparams);
+single_cond_atten_stats(alpha, 1, aparams);
+
+
+% Supress
+aparams.ana.test = 'face';
+aparams.ana.cond = 'scene';  % Can be face or scene
+aparams.ana.test_index = [1 2];
+display_analysis(aparams);
+single_cond_atten_stats(alpha, 2, aparams);
+
+% Passive
+aparams.ana.test = 'passive';
+aparams.ana.cond = 'scene';  % Can be face or scene
+aparams.ana.test_index = [1 2];
+display_analysis(aparams);
+single_cond_atten_stats(alpha, 3, aparams);
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  FACES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Attend
+aparams.ana.test = 'face';
+aparams.ana.cond = 'face';  % Can be face or scene
+aparams.ana.test_index = [1 2];
+display_analysis(aparams);
+single_cond_atten_stats(alpha, 4, aparams);
+
+
+% Supress
+aparams.ana.test = 'scene';
+aparams.ana.cond = 'face';  % Can be face or scene
+aparams.ana.test_index = [1 2];
+display_analysis(aparams);
+single_cond_atten_stats(alpha, 5, aparams);
+
+% Passive
+aparams.ana.test = 'passive';
+aparams.ana.cond = 'face';  % Can be face or scene
+aparams.ana.test_index = [1 2];
+display_analysis(aparams);
+single_cond_atten_stats(alpha, 6, aparams);
+
+function [] = display_analysis(aparams)
+
+display(sprintf('Subject name = %s',aparams.ana.subjectname));
+display(sprintf('Channel = %d',aparams.ana.atten_channel));
+display(sprintf('Test = %s',aparams.ana.test));
+display(sprintf('Cond = %s',aparams.ana.cond));
+display(' ');
+
+
+
+
+
+

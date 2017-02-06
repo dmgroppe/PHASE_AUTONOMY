@@ -1,0 +1,26 @@
+function [] = compare_two_conditions(EEG, cond1, cond2, frange, alpha)
+
+eDir = get
+
+[sync(:,:,1),~] = compute_ICsync_matrix(EEG, cond1, frange, 60);
+[sync(:,:,2),~] = compute_ICsync_matrix(EEG, cond2, frange, 60);
+
+z = sync./abs(sync).*atanh(abs(sync));
+diff = z(:,:,1)-z(:,:,2);
+Cdiff = diff./abs(diff).*tanh(abs(diff));
+stddev = sqrt(imagco_stddev(sync(:,:,1)).^2 + imagco_stddev(sync(:,:,2)).^2);
+
+p = 1-normcdf(abs(Cdiff), 0, stddev);
+sig = FDR_corr_pop(p, alpha);
+csig = sig.*Cdiff;
+
+h = figure(1);
+text = sprintf('%s vs %s %4.0f-%4.0fHz IC Significance alpha %3.0e', upper(cond1),...
+    upper(cond2), frange(1), frange(2), alpha);
+set(h, 'Name', text);
+plot_syncmatrix(csig, [-0.3 0.3]);
+title(text);
+save_figure(h, eDir, text);
+
+
+

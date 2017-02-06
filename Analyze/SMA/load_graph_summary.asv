@@ -1,0 +1,23 @@
+function [] = load_graph_summary()
+
+sheets = {'Aloud', 'Quiet', 'EO', 'EC'};
+inDir = 'D:\Projects\Data\Vant\Figures\Manuscript\';
+filenames = {'IC Graph summary',...
+             'PC Graph summary'...
+             'Corr Graph summary'};
+atypes = {'ic', 'pc', 'corr'};
+conds {'aloud', 'quiet', 'rest_eo', 'rest_ec'};
+         
+
+nfiles = size(filenames, 2);
+nsheets = size(sheets, 2);
+
+for i=1:nfiles
+    newdata = {};
+    for j=1:nsheets
+        newdata{j,i} = import_graph_summary([inDir filenames{i} '.xlsx'], sheets{j});
+    end
+    newdata{nsheets+1, i} = filenames{i};
+end
+
+save([inDir 'All Graphs.mat'], 'newdata', 'atypes', 'sheets')

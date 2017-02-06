@@ -1,0 +1,20 @@
+function [] = RunAscenzoAnalysis()
+
+clear;
+
+params = get_default_params();
+
+params.ana.dataDir = 'D:\Projects\Data\Scene memory\Data\As\Enc\';
+params.ana.dataFile = 'AS Encoding.mat';
+params.ana.tagFile = 'Ascenzo TAGS.txt';
+params.ana.epoch_list = [5 6 7 10 12 13 15 23 28 30 36 38 39 42 43 55 60];
+%params.ana.epoch_list = [5 6 7];
+params.ana.chlist = [2 7 9];
+params.export.prefix = 'AS sH';
+params.export.dir = 'D:\Projects\Data\Scene memory\TVA\Enc\';
+params.pl.inclplcalcs = 0;
+
+params.export.export_results = 0;
+
+% Do analysis of 
+analyze(params);

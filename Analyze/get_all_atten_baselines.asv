@@ -1,0 +1,51 @@
+function [baselines] = get_all_atten_baselines(channel, which_test, which_cond)
+
+if (nargin < 2); which_test = 'all'; end;
+if (nargin < 3); which_cond = ''; end;
+
+aparams = get_default_params();
+
+aparams.ana.subjectname = 'Bonner';
+aparams.ana.atten_channel = channel;
+aparams.ana.test_index = [1 2];
+
+
+
+switch which_test
+    case 'all'
+        display('Collecting baselines for ALL tests.');
+        baselines = get_spectra(aparams, 'scene', 'scene');
+        baselines = add_baselines(baselines, aparams, 'scene', 'face');
+        baselines = add_baselines(baselines, aparams, 'face', 'face');
+        baselines = add_baselines(baselines, aparams, 'face', 'scene');
+        baselines = add_baselines(baselines, aparams, 'passive', 'face');
+        baselines = add_baselines(baselines, aparams, 'passive', 'scene');
+    otherwise
+        display(sprintf('Collecting baselines for %s test.', upper(which)));
+        baselines = get_spectra(aparams, which_test, 'scene');
+        baselines = add_baselines(baselines, aparams, which_test, 'face');
+end
+
+function [baselines] = get_spectra(aparams, test, cond)
+
+aparams.ana.test = test;
+aparams.ana.cond = cond;
+
+d = atten_collapse_condition(aparams);
+
+dparams = d.param_list{1};
+blsamples = time_to_samples(dparams.ana.baseline, dparams.data.srate);
+
+baselines = d.spectra(:,1:blsamples,:);
+
+function [baselines] = add_baselines(baselines, aparams, test, cond)
+
+tot_spectra = size(baselines, 3);
+new_bls = get_spectra(aparams, test, cond);
+baselines(:,:,tot_spectra+1:(tot_spectra + size(new_bls,3))) = new_bls;
+
+
+
+
+
+

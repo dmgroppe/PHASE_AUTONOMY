@@ -1,0 +1,107 @@
+function [] = ridge_stats(c1, c2, frq, params)
+
+frq_ranges = franges();
+
+if (nargin < 6); per = 50; end
+
+[nfrq npoints nspectra] = size(c1);
+bl_samples = time_to_samples(params.ana.baseline, params.data.srate);
+x = get_x(npoints, params.data.srate);
+
+%Contains arrays of the freq indicies at which a ridge was detected
+ridges = cell(2, nspectra);
+
+for i=1:nspectra
+    ridges{1,i} = get_ridges(c1(:,:,i), frq, params);
+    ridges{2,i} = get_ridges(c2(:,:,i), frq, params);
+end
+
+% Ridge Data - contains only the ridges of data
+rd = cell(2,nspectra);
+
+for i = 1:nspectra
+    rd{1,i} = ridge_data(c1(:,:,i), ridges{1,i});
+    rd{2,i} = ridge_data(c2(:,:,i), ridges{2,i});
+end
+
+m = cell(2,nspectra);
+for i=1:length(frq_ranges)
+    lb = frq_ranges(i).lb;
+    ub = frq_ranges(i).ub;
+    
+    for j=1:nspectra
+    
+    % Ridges that are in the range are averaged
+        rrindex = find((ridges{1,j} >= lb & ridges{1,j} <= ub));
+        m{1,j} = average_range(rd{1,j}, rrindex);
+        rrindex = find((ridges{2,j} >= lb & ridges{2,j} <= ub));
+        m{2,j} = average_range(rd{1,j}, rrindex);
+        figure(20);
+        plot(x,m{1,j}, x, m{2,j});
+        title
+    end
+    
+end
+
+ m1 = reshape(mean(mb1,3),1,(npoints-bl_samples));
+ m2 = reshape(mean(mb2,3),1,(npoints-bl_samples));
+
+
+%  Get the ridges from peaks in the spectra ------------------------------
+function [ridges] = get_ridges(d, frq, params)
+
+[nfrq npoints nspectra] = size(d);
+rt = find_peaks(d, 50);
+
+ridges = [];
+nridges = 0;
+for i=1:nfrq
+    % get the indicies that have peaks in this frequency
+    ncyclepoints = time_to_samples(1/frq(i)*params.ridges.ncycles*1000, params.data.srate);
+    if (ncyclepoints >= npoints)
+        ncyclepoints = npoints/2;
+    end
+    %pind = find(rt(i,:)>0);
+    % store the index of the frequency where the ridges was
+    if (is_ridges(rt(i,:), ncyclepoints))
+        nridges = nridges + 1;
+        ridges(nridges) = i;
+    end
+end
+
+% Find a ridge ------------------------------------------------------------
+function [ir] = is_ridges(d, min_points)
+
+for i=1:(length(d)-min_points-1)
+    if (sum(d(i:(i+min_points-1))) == min_points)
+        ir = 1;
+        return;
+    end
+end
+ir = 0;
+% Get only data that is a ridge ---------------------------------------
+function [rd] = ridge_data(spectrum, ridges)
+
+[nfrq, npoints] = size(spectrum);
+rd = [];
+if (~isempty(ridges))
+    rd = zeros(nfrq, npoints);
+    for k=1:length(ridges)
+        index = ridges(k);
+        rd(k) = spectrum(index);
+    end
+end
+
+% Average over a frequqnecy range
+function [m] = average_range(d, rrindex)
+
+npoints = length(d);
+m = zeros(1, npoints);
+
+if (~isempty(rrindex))
+    m = zeros(1,npoints);
+    for k=1:length(rrindex)
+        m = m+d(rrindex(k),:,:);
+    end
+    m = m/length(rrindex);
+end

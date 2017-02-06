@@ -1,0 +1,54 @@
+params = get_default_params();
+
+clear;
+
+%% Encoding
+
+test = 'enc';
+cond = 'sH';
+
+RunAsAnalysis(test, cond);
+RunCuAnalysis(test, cond);
+%RunLyAnalysis();
+RunMcAnalysis(test, cond);
+RunPrAnalysis(test, cond);
+RunSaAnalysis(test, cond);
+RunSiAnalysis(test, cond);
+RunStAnalysis(test, cond);
+
+test = 'enc';
+cond = 'R';
+
+RunAsAnalysis(test, cond);
+RunCuAnalysis(test, cond);
+%RunLyAnalysis();
+RunMcAnalysis(test, cond);
+RunPrAnalysis(test, cond);
+RunSaAnalysis(test, cond);
+RunSiAnalysis(test, cond);
+RunStAnalysis(test, cond);
+
+%% Recognition
+test = 'rec';
+cond = 'Hits';
+
+RunAsAnalysis(test, cond);
+RunCuAnalysis(test, cond);
+%RunLyAnalysis();
+RunMcAnalysis(test, cond);
+RunPrAnalysis(test, cond);
+RunSaAnalysis(test, cond);
+RunSiAnalysis(test, cond);
+RunStAnalysis(test, cond);
+
+test = 'rec';
+cond = 'CR';
+
+RunAsAnalysis(test, cond);
+RunCuAnalysis(test, cond);
+%RunLyAnalysis();
+RunMcAnalysis(test, cond);
+RunPrAnalysis(test, cond);
+RunSaAnalysis(test, cond);
+RunSiAnalysis(test, cond);
+RunStAnalysis(test, cond);

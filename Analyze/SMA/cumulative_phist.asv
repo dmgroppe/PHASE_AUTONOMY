@@ -1,0 +1,39 @@
+function [] = cumulative_phist(EEG, ch_pairs, frange, cond, length, ptname, npeaks, dosave)
+
+if min(ch_pairs) < 2
+    display('Requires pairs, not a channel list.')
+    return;
+end
+
+nbins = 100;
+
+% Get the appropriate subregion
+[tstart tend] = get_trange(cond, length, ptname);
+subr = get_subregion(EEG, tstart, tend);
+
+% Make the filter
+d = window_FIR(frange(1), frange(2), EEG.srate);
+
+npairs = size(ch_pairs,2);
+
+for i=1:npairs
+
+    h1 = hilbert(filtfilt(d.Numerator,1,subr(ch_pairs(1,i),:)));
+    h2 = hilbert(filtfilt(d.Numerator,1,subr(ch_pairs(2,i),:)));
+
+    dphi = (angle(h1) - angle(h2))/2;
+    dphi = phase_diff(dphi).*sign(dphi);
+    
+    phist(:,i) = hist(dphi, nbins);
+end
+
+cum_hist = sum(phist,2);
+
+x = -pi:2*pi/99:pi;
+h = figure(1);
+[FitResults,LowestError,BestStart,xi,yi] = peakfit([x' cum_hist],0,2*pi,npeaks,1,1,20);
+
+if (dosave)
+    save_figure(h,eDir, figtext);
+end
+

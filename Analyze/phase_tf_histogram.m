@@ -1,0 +1,123 @@
+% USAGE [phist] = phase_tf_histogram(pld)
+%
+%   Input:
+%       pld:    Matrix of phase locking data in cell matricies (cond, subjects)
+%               Each cell contains matrix of cells (nfrq, npoints)
+%               Each cell contains an array of bins
+%   Output:
+%    phist:     nfrq - Histogram not includig the baseline period collapsed
+%                      across subjects while maintaining tf representation
+function [phist] = phase_tf_histogram(pld, dparams)
+
+reply = input('Enter freqeuncy and time bin [frq tstart tend]: ');
+
+while (~isempty(reply))
+    if (length(reply) < 3)
+        display('Too few parameters');
+        reply = input('Enter freqeuncy and time bin [frq time]: ');
+        continue;
+    end
+    findex = reply(1);
+    tbin = time_to_samples(reply(2:3), dparams.data.srate) +...
+        time_to_samples(dparams.ana.baseline, dparams.data.srate);
+    
+    thist1 = get_fthist(pld, 1, findex, tbin);
+    thist2 = get_fthist(pld, 2, findex, tbin);
+    ymax = max([max(thist1) max(thist2)]);
+      
+    subplot(2,1,1);
+    theta = 180/(length(thist1)-1)*((1:length(thist1))-1);
+    %[hmean hvar] = get_stats(pld, 1, findex, tbin, 200);
+    plot(theta,smooth(thist1));
+    axis([0 max(theta) 0 ymax]);
+    %scatter_plot(pld,1, findex, tbin);
+    subplot(2,1,2);
+    %[hmean hvar] = get_stats(pld, 2, findex, tbin, 200);
+    plot(theta,smooth(thist2));
+    axis([0 max(theta) 0 ymax]);
+    %scatter_plot(pld,2, findex, tbin)
+       
+    [r1 ph1] = c_stat(thist1);
+    [r2 ph2] = c_stat(thist2);
+    display(sprintf('CVar1 = %6.2f, CVar2 = %6.2f',1-r1, 1-r2));
+    display(sprintf('ph1 = %6.2f, ph2= %6.2f',180*(ph1/pi), 180*(ph2/pi)));
+    display(sprintf('If uniform mean = %6.0f',sum(thist1)/length(thist1)));
+    
+    reply = input('Enter freqeuncy and time bin [frq time]: ');
+end
+
+function [fthist] = get_fthist(pld, cond, findex, tbin)
+nsubjects = length(pld);
+[nfreq, npoints] = size(pld{1,1});
+nbins = length(pld{1,1}{1,1});
+fthist = [];
+
+if ((findex <= nfreq && findex >= 1) && (min(tbin) >= 1 && max(tbin) <= npoints))
+    fthist = zeros(1, nbins);
+    for i=1:nsubjects
+        for j=min(tbin):max(tbin);
+            fthist = fthist + pld{cond,i}{findex,j};
+        end
+    end
+end
+
+function [R phi] = c_stat(thist)
+    theta = 2*pi/length(thist)*(1:length(thist));
+    z = (cos(theta) + 1i*sin(theta)).*thist;
+    R = abs(sum(z))/sum(thist);
+    phi = angle(sum(z));
+    
+function [hmean hvar] = get_stats(pld, cond, findex, tbin, nperm)
+nsubjects = length(pld);
+[nfreq, npoints] = size(pld{1,1});
+nbins = length(pld{1,1}{1,1});
+fthist = [];
+
+peaks = zeros(1,nperm);
+if ((findex <= nfreq && findex >= 1) && (min(tbin) >= 1 && max(tbin) <= npoints))
+    for k= 1:nperm
+        fthist = zeros(1, nbins);
+        for i=1:nsubjects
+            for j=min(tbin):max(tbin);
+                d = pld{cond,i}{findex,j};
+                sd = shuffle(d);
+                fthist = fthist + sd;
+            end
+        end
+        peaks(k) = min(fthist);
+    end
+    hmean = mean(peaks);
+    hvar = var(peaks);
+end
+
+function [d] = shuffle(d)
+
+nshuf = length(d);
+for i=1:nshuf
+    i1 = floor(rand*nshuf) + 1;
+    i2 = floor(rand*nshuf) + 1;
+    temp = d(i1);
+    d(i1) = d(i2);
+    d(i2) = temp;
+end
+
+function [] = scatter_plot(pld,cond, findex, tbin)
+nbins = length(pld{1,1}{1,1});
+theta = 180/nbins*(1:nbins);
+
+nsubjects = length(pld);
+[nfreq, npoints] = size(pld{1,1});
+hold on
+if ((findex <= nfreq && findex >= 1) && (min(tbin) >= 1 && max(tbin) <= npoints))
+    for i=1:nsubjects
+        fthist = zeros(1,nbins);
+        for j=min(tbin):max(tbin);
+            fthist = fthist+pld{cond,i}{findex,j};
+        end
+        scatter(theta,fthist,'SizeData',2, 'MarkerFaceColor', 'black', 'Marker', '.');
+    end
+end
+hold off
+
+
+

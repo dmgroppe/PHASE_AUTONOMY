@@ -1,0 +1,103 @@
+%   USAGE: [p] = single_cond_bootstrap(R1, atype, aparams, dparams)
+%   
+%   Input:
+%       R1: condition 1 spectra
+%       atype:  analysis type 'power', 'cvar'
+%       aparams, dparams: self explanatory
+%   Output:
+%       pinc:   Probability of z0 being greater than baseline by chance
+%       pdec:   Probability of z0 being less than the baseline by chance
+
+
+function [pinc pdec] = single_cond_bootstrap(R1, baselines, atype, aparams)
+
+nsurr = aparams.ana.nsurr;
+[nfrq, npoints, ndspectra] = size(R1);
+
+% A little of a speed up so do't keep computing the power of the spectra
+% for each permutation
+if (strcmp(atype, 'power') && ~isreal(R1))
+    R1 = abs(R1).^2;
+end
+
+if (strcmp(atype, 'power') && ~isreal(baselines))
+    baselines = abs(baselines).^2;
+end
+
+
+% Get the test statistic
+z0 = transform_spectra(R1, atype);
+pinc = zeros(nfrq, npoints);
+pdec = pinc;
+z = zeros(nfrq, 1, nsurr);
+
+switch atype
+    case 'cvar'
+        z0 = 1-z0;  % MRL
+end
+
+tic
+parfor i=1:nsurr
+    % Get test statistic for each permutation
+    z(:,:,i) = permute_bl(baselines, ndspectra, atype);
+end
+toc
+
+for i=1:nsurr  
+    switch atype
+        case 'cvar'
+            ind = find((1-repmat(z(:,:,i),1,npoints)) > z0);
+        otherwise
+            ind = find(repmat(z(:,:,i),1,npoints) > z0);
+    end
+    pinc(ind) = pinc(ind) + 1;
+    
+    switch atype
+        case 'cvar'
+            ind = find(z0 > (1-repmat(z(:,:,i),1,npoints)));
+        otherwise
+            ind = find( z0 > repmat(z(:,:,i),1,npoints));
+    end
+    pdec(ind) = pdec(ind) + 1;
+end
+
+pinc = (1+pinc)./(nsurr+1);
+pdec = (1+pdec)./(nsurr+1);
+
+
+function [bl] = permute_bl(spectra, ndspectra, atype)
+
+resampled = spectra(:,:,1:ndspectra);
+nspectra = size(spectra, 3);
+
+for i=1:ndspectra
+    index = floor(rand*nspectra) + 1;
+    if (index > nspectra)
+        index = nspectra;
+    end
+    % resample with replacement
+    resampled(:,:,i) = spectra(:,:,index);
+end
+
+bl = transform_spectra(resampled, atype);
+% Average across time
+bl = mean(bl, 2);
+
+function [perm] = permute_spectra(spectra)
+% This function is only for CVAR calculation
+% resample all the spectra with replacement to compute bootstrapped CVAR
+
+resampled = spectra;
+nspectra = size(spectra, 3);
+
+for i=1:nspectra
+    index = floor(rand*nspectra) + 1;
+    if (index > nspectra)
+        index = nspectra;
+    end
+    % resample with replacement
+    resampled(:,:,i) = spectra(:,:,index);
+end
+
+% MRL
+perm = 1-transform_spectra(resampled, 'cvar');

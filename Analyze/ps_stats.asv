@@ -1,0 +1,58 @@
+% USAGE: [pl] = phsync(sf, aparams)
+%
+%   Computes the ps (phase synchrony) between two channels and across two
+%   conditions
+%
+%   Input:
+%       sf:         The file names
+%       aparams:    Analysis parameters
+
+function [pl] = phsync(sf, aparams)
+
+pl = {};    % Contains the pl stats (condition, subject)
+for i=1:2
+    % loop over the conditions
+    nsubjects = sf{1,1}.nsubjects;
+    
+    for j=1:nsubjects
+        % Get the spectra and get the concordent epoch indices
+        [inds, s, params] = get_spectra_indices(sf{1,i}.files{j}, sf{2,i}.files{j});
+        
+        [nfrq, npoints,~] = size(s{1});
+        
+        pd = zeros(nfrq, npoints, length(inds));
+        for k=1:length(inds)
+            pd(:,:,k) = phase_diff(angle(s{1}(:,:,inds(1,1,k))) - angle(s{2}(:,:, inds(1,2,k))));
+        end
+        
+        % Compute the PL statistics for the phase differences of the two
+        % channels
+        
+        pl{i,j} = compute_pl(pd, aparams);
+    end
+end
+
+function [indicies s params] = get_spectra_indices(f1, f2)
+    if (~exist(f1, 'file') || ~exist(f2, 'file'))
+        error('Unable to open one or both of the files for ps calculations');
+    end
+    
+    load(f1);
+    alimit1 = alimit_list;
+    s{1} = spectra;
+    load(f2);
+    alimit2 = alimit_list;
+    s{2} = spectra;
+    
+    indicies = [];
+    nindicies = 0;
+    for i=1:length(alimit1)
+        for j=1:length(alimit2)
+            if (alimit1{i}.ep == alimit2{j}.ep)
+                nindicies = nindicies + 1;
+                indicies(:,:,nindicies) = [i j];
+                break;
+            end
+        end
+    end
+    

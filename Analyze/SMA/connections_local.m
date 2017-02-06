@@ -1,0 +1,54 @@
+% USAGE: [pairs] = connections_local(S)
+%
+% Get pairs from an electrode schema (S), that are immediately beside each other -
+% hence = local only
+
+function [pairs] = connections_local(S)
+
+nelectrodes = length(S.E);
+
+ccount = 0;
+for i=1:nelectrodes
+    if size(S.E{i},1) > 1
+        % This is a grid
+        [r,c] = size(S.E{i});
+        tc = r*c;
+        for ii=1:size(S.E{i},1)
+            for jj=1:size(S.E{i},2)
+                % Look right
+                if mod(S.E{i}(ii,jj),c)
+                    % Not off the top of the grid
+                    ccount = ccount + 1;
+                    pairs(:,ccount) = [S.E{i}(ii,jj), S.E{i}(ii,jj) + 1];
+                end
+                % Look up
+                if (S.E{i}(ii,jj) + c) <= tc;
+                    % Not off the top of the grid
+                    
+                    % And if you are not at the left edge then look up to
+                    % the left
+                    if mod(S.E{i}(ii,jj),c) ~= 1
+                        ccount = ccount + 1;
+                        pairs(:,ccount) = [S.E{i}(ii,jj), S.E{i}(ii,jj)+c-1];
+                    end
+                    
+                    % Look directly up
+                    ccount = ccount + 1;
+                    pairs(:,ccount) = [S.E{i}(ii,jj), S.E{i}(ii,jj) + c];
+                    % And if you are not at the right edge of the grid you can
+                    % look up and to the right
+                    if mod(S.E{i}(ii,jj),c)
+                        ccount = ccount + 1;
+                        pairs(:,ccount) = [S.E{i}(ii,jj), S.E{i}(ii,jj)+c+1];
+                    end
+                end
+            end
+        end
+    else
+        %This is a strip electrode
+        for ii=1:size(S.E{i},2)-1
+            ccount = ccount+1;
+            pairs(:,ccount) = [S.E{i}(ii), S.E{i}(ii) + 1];
+        end
+    end
+end

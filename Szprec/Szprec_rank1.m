@@ -1,0 +1,70 @@
+function [ranking, f_out] = Szprec_rank1(F,cfg, a_cfg, sdir)
+
+if a_cfg.exclude_bad_channels
+    [bad_m_channels, bad_b_channels] = bad_channels_get(sdir);
+
+    switch cfg.chtype
+        case 'bipolar'
+            bad_channels = bad_b_channels;
+        case 'mono'
+            bad_channels = bad_m_channels;
+    end
+else
+    bad_channels = [];
+end
+
+f_dim = length(size(F));
+
+% Do the ranking
+nchan = size(F,f_dim);
+ranking = zeros(length(F),nchan);
+
+
+% Default ranking is max
+if f_dim == 3 
+    if isfield(cfg, 'analysis')
+        if a_cfg.rank_across_freqs
+            if strcmpi(cfg.analysis, 'phase_coherence')
+                f = squeeze(max(F,[], 1));
+            else 
+                f = squeeze(max(F,[],1));
+            end
+        else
+            f = F;
+        end
+    else
+        f = squeeze(max(F,[],1));
+    end
+else
+    f = F;
+end
+
+% This part might completely work since I only got the dim 3 section
+% working, whihc in fact might be superflous to segregate
+
+if f_dim == 3
+    if a_cfg.rank_across_freqs
+        f(:,bad_channels) = 0;
+        [~, indicies] = sort(f,2,'descend');
+        [~,ranking] = sort(indicies,2);
+        f_out = f;
+    else
+        % Not sure if this works.  This is fucked since f_out is going to
+        % be per freqeuncy, subsequent plotting assumes f_out is a 2dim
+        % matrix
+        for i=1:size(F,1) 
+            [~, indicies] = sort(squeeze(f(i,:,:),2,'descend'));
+            [~,ranking(i,:,:)] = sort(indicies,2);
+            f_out = f;
+        end
+        f(:,:,bad_channels) = 0;
+    end
+else
+    f(:,bad_channels) = 0;
+    [~, indicies] = sort(f,2,'descend');
+    [~,ranking] = sort(indicies,2);
+    f_out = f;
+end
+
+
+ranking = (nchan - ranking)/(nchan -1);

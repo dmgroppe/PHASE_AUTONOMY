@@ -1,0 +1,57 @@
+function [within_num, out_num, between_num, total_num, span_num, out_c, between_c, ...
+    all_c, span_c] = sort_to_regions(sig, electrodes)
+
+nchan = length(sig);
+
+within_num = 0;
+out_num = 0;
+between_num = 0;
+total_num = 0;
+
+for i=1:nchan
+    for j=i+1:nchan
+        if abs(sig(j,i)) > 0
+            total_num = total_num + 1;
+            all_c(:, total_num) = [j,i];
+            if (~isempty(find(electrodes == i, 1)) && ~isempty(find(electrodes == j, 1)))
+                % Electrode pairs ONLY with region of interest
+                within_num = within_num + 1;
+                
+            elseif (isempty(find(electrodes == i, 1)) && isempty(find(electrodes == j, 1)))
+                out_num = out_num + 1;
+                % Electrode pairs that have no direct connections to the
+                % electrodes of interest
+                out_c(:, out_num) = [j i];
+            elseif ((~isempty(find(electrodes == i, 1)) && isempty(find(electrodes == j, 1))) ||...
+                    (isempty(find(electrodes == i, 1)) && ~isempty(find(electrodes == j, 1))))
+                % Electrode Pairs with one in the region of interest and
+                % one outside
+                between_num = between_num + 1;
+                between_c(:, between_num) = [j i];                
+            end
+        end
+    end
+end
+
+% Computes the electrodes that span from the network to the  (unconnected network) 
+span_num = 0;
+for i=1:out_num
+    for j = 1:between_num
+        common_index = find(out_c(:,i) == between_c(:,j), 1);
+        if ( ~isempty(common_index))
+            span_num = span_num + 1;
+            
+            % Take the other index
+            if ( common_index == 1)
+                other = 2;
+            else
+                other = 1;
+            end
+            
+            span_c(:, span_num) = [out_c(other,i), out_c(common_index,i), between_c(other,i)];
+        end
+    end
+end
+
+
+

@@ -1,0 +1,198 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>sync_matrix</title><meta name="generator" content="MATLAB 7.10"><meta name="date" content="2011-07-27"><meta name="m-file" content="sync_matrix"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">%USAGE: sync = sync_matrix(data, aparams)</span>
+<span class="comment">%</span>
+<span class="comment">% Computes sync by various methods over the entire duration for all</span>
+<span class="comment">% combinations of channels - return in sync</span>
+<span class="comment">%</span>
+<span class="comment">%   EEG     - EEG struct from eeglab</span>
+<span class="comment">%   srate   - Hz</span>
+<span class="comment">%   aparams - options</span>
+<span class="comment">%   nfig    - figure number</span>
+<span class="comment">%   type    - type of analysis</span>
+
+<span class="keyword">function</span> [R h] = sync_matrix(data, srate, aparams, type)
+
+[nchan npoints] = size(data);
+h = zeros(nchan, npoints);
+
+fprintf(<span class="string">'   Filtering and computing hilbert transform\n'</span>);
+
+<span class="comment">% %Create the filter</span>
+<span class="comment">% Hd = bpfilter1(aparams.sync.lowcut, aparams.sync.highcut, srate);</span>
+<span class="comment">%</span>
+<span class="comment">% % Filter all the channels</span>
+<span class="comment">% for i=1:nchan</span>
+<span class="comment">%     h(i,:) = hilbert(tfilter(data(i,:), Hd));</span>
+<span class="comment">% end</span>
+
+ <span class="keyword">for</span> i=1:nchan
+     filt = eegfilt(double(data(i,:)), srate, aparams.sync.lowcut, aparams.sync.highcut);
+     h(i,:) = hilbert(filt);
+ <span class="keyword">end</span>
+
+R = zeros(nchan, nchan);
+hj = h;
+
+nbins = aparams.pl.bins;
+probbins = aparams.pl.probbins;
+steps = aparams.pl.steps;
+
+fprintf(<span class="string">'   Computing sync matrix\n'</span>);
+
+<span class="keyword">for</span> i=1:nchan
+    base = h(i,:);
+    <span class="keyword">parfor</span> j=i+1:nchan
+        <span class="keyword">switch</span> type
+            <span class="keyword">case</span> <span class="string">'pc'</span>
+                R(j,i) = phase_coherence(base, hj(j,:));
+            <span class="keyword">case</span> <span class="string">'pl'</span>
+                R(j,i) = pl(base, hj(j,:),nbins, probbins, steps);
+            <span class="keyword">case</span> <span class="string">'ic'</span>
+                R(j,i) = imag_coherence(base, hj(j,:));
+            <span class="keyword">case</span> <span class="string">'corr'</span>
+                R(j,i) = corr(base, hj(j,:));
+            <span class="keyword">case</span> <span class="string">'coh'</span>
+                R(j,i) = coherence_nogpu(base, hj(j,:));
+            <span class="keyword">case</span> <span class="string">'pli'</span>
+                R(j,i) = pli(base, hj(j,:));
+            <span class="keyword">case</span> <span class="string">'zph'</span>
+                R(j,i) = zero_phase(base, hj(j,:));
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Input argument "data" is undefined.
+
+Error in ==&gt; sync_matrix at 14
+[nchan npoints] = size(data);
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.10<br></p></div><!--
+##### SOURCE BEGIN #####
+%USAGE: sync = sync_matrix(data, aparams)
+%
+% Computes sync by various methods over the entire duration for all
+% combinations of channels - return in sync
+%
+%   EEG     - EEG struct from eeglab
+%   srate   - Hz
+%   aparams - options
+%   nfig    - figure number
+%   type    - type of analysis
+
+function [R h] = sync_matrix(data, srate, aparams, type)
+
+[nchan npoints] = size(data);
+h = zeros(nchan, npoints);
+
+fprintf('   Filtering and computing hilbert transform\n');
+
+% %Create the filter
+% Hd = bpfilter1(aparams.sync.lowcut, aparams.sync.highcut, srate);
+% 
+% % Filter all the channels
+% for i=1:nchan
+%     h(i,:) = hilbert(tfilter(data(i,:), Hd));
+% end
+
+ for i=1:nchan
+     filt = eegfilt(double(data(i,:)), srate, aparams.sync.lowcut, aparams.sync.highcut);
+     h(i,:) = hilbert(filt);
+ end
+
+R = zeros(nchan, nchan);
+hj = h;
+
+nbins = aparams.pl.bins;
+probbins = aparams.pl.probbins;
+steps = aparams.pl.steps;
+
+fprintf('   Computing sync matrix\n');
+
+for i=1:nchan
+    base = h(i,:);
+    parfor j=i+1:nchan
+        switch type
+            case 'pc'
+                R(j,i) = phase_coherence(base, hj(j,:));
+            case 'pl'
+                R(j,i) = pl(base, hj(j,:),nbins, probbins, steps);
+            case 'ic'
+                R(j,i) = imag_coherence(base, hj(j,:));
+            case 'corr'
+                R(j,i) = corr(base, hj(j,:));
+            case 'coh'
+                R(j,i) = coherence_nogpu(base, hj(j,:));
+            case 'pli'
+                R(j,i) = pli(base, hj(j,:));
+            case 'zph'
+                R(j,i) = zero_phase(base, hj(j,:));
+        end
+    end
+end
+
+
+
+##### SOURCE END #####
+--></body></html>

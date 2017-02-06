@@ -1,0 +1,22 @@
+function [] = sig_stats_plot(atype)
+
+A = analysis_lists();
+roi = [7 8 15 16 59 60 61];
+
+%atypes = size(A.atypes,2);
+nfranges = size(A.flist,2);
+ncond = size(A.condlist, 2);
+
+
+for i=1:nfranges
+    for j=1:ncond
+        Sh{i,j} = sig_stats_get(atype, A.condlist{j}, A.flist{i});
+    end
+end
+
+
+
+
+
+
+

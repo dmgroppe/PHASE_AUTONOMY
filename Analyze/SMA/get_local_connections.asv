@@ -1,0 +1,36 @@
+function [] = get_local_connections(S)
+
+nelectrodes = length(S.E);
+
+ccount = 0;
+for i=1:nelectrodes
+    if size(S.E{i},1) > 1
+        % This is a grid
+        [r,c] = size(S.E{i});
+        tc = r*c;
+        for ii=1:size(S.E{i},1)
+            for jj=1:size(S.E{i},2)
+                % Look up
+                if (S.E{ii,jj} + c) < tc;
+                    % Not off the top of the grid
+                    ccount = ccount + 1;
+                    pairs(:,ccount) = [S.E{ii,jj}, S.E{ii,jj} + c];
+                    % And if you are not at the edge of the grid you can
+                    % look up and to the right
+                    if ~mod(S.E{ii,jj},c);
+                        ccount = ccount + 1;
+                        pairs(:,ccount) = [S.E{ii,jj}, S.E{ii,jj}+c+1];
+                    end
+                end
+                % Look right
+                if ~mod(S.E{ii,jj},c);
+                    % Not off the top of the grid
+                    ccount = ccount + 1;
+                    pairs(:,ccount) = [S.E{ii,jj}, S.E{ii,jj} + 1];
+                end
+            end
+        end
+    else
+        %This is a strip electrode
+    end
+end

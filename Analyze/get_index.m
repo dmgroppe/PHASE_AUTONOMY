@@ -1,0 +1,23 @@
+function [index] = get_index(array, item)
+
+[r,c] = size(array);
+
+if ( (r == 1 && c == 1 ) || (r > 1 && c > 1))
+    index = 0;
+    return
+end
+
+if (r > c)
+    iend = r;
+else
+    iend = c;
+end
+
+for i=1:iend
+    if (array(i) >= item)
+        index = i;
+        return;
+    end
+end
+
+index = iend;

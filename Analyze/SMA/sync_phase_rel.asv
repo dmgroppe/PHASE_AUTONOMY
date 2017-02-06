@@ -1,0 +1,10 @@
+function [] = sync_phase_rel(EEG, cond, ptname, ch, f1range, f2range, twindow)
+
+s_window = time_to_samples(twindow, EEG.srate);
+[tstart tend] = get_trange(cond, 60);
+subr = get_subregion(EEG, tstart, tend);
+x = subr(ch:EEG.nbchan-1,:);
+
+[MI = mod_index_compute(x, srate, lowfs, highfs, nbin, wn, usewt)
+
+

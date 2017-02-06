@@ -1,0 +1,15 @@
+function [z] = imagco_z(C)
+
+N = length(C);
+
+v = (1-C.^2)*(atanh(abs(C)).^2)./(2*N*(C.^2));
+stddev = 
+z = C./sqrt(v./(N-1));
+
+for i=1:N
+    for j=1:N
+        if (isnan(z(i,j) ))
+            z(i,j) = 0.0;
+        end
+    end
+end

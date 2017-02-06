@@ -1,0 +1,31 @@
+function [] = sync_meanph_compare(EEG, ch, highf, lowf, cond, ptname)
+
+ap = sync_params();
+
+[tstart tend] = get_trange(cond, ap.length, ptname);
+subr = get_subregion(EEG, tstart, tend);
+subr = subr(ch,:);
+
+d = window_FIR(highf(1), highf(2), EEG.srate);
+high1 = hilbert(filtfilt(d.Numerator,1,subr(1,:)));
+high2 = hilbert(filtfilt(d.Numerator,1,subr(2,:)));
+
+d = window_FIR(lowf(1), lowf(2), EEG.srate);
+low1 = hilbert(filtfilt(d.Numerator,1,abs(high1)));
+low2 = hilbert(filtfilt(d.Numerator,1,abs(high2)));
+
+fratio = mean(highf)/mean(lowf);
+
+dphihigh = phase_diff(angle(high1)-angle(high2));
+dphilow = phase_diff(fratio*(angle(low1) - angle(low2)));
+
+figure(1);
+subplot(2,1,1);
+rose(dphihigh);
+subplot(2,1,2);
+rose(dphilow);
+%circ_kuipertest(dphihigh, dphilow);
+
+
+
+

@@ -1,0 +1,13 @@
+function [] = show_region_summary(R)
+
+fprintf('Within ROI = %d\n',R.within_num);
+fprintf('Outside of ROI = %d\n',R.out_num);
+fprintf(' Between ROI and non-ROI electrodes = %d\n',R.between_num);
+fprintf(' Total number of connections = %d\n',R.total_num);
+fprintf('  = %d\n',R.span_num);
+
+
+
+
+
+R.spanners_n

@@ -1,0 +1,22 @@
+function [pval] = cvar_p_value(S1, S2)
+
+[nfrq, npoints, nspectra1] = size(S1);
+[nfrq, npoints, nspectra2] = size(S2);
+
+nspectra = min([nspectra1 nspectra2]);
+
+s = zeros(1, 2*nspectra);
+idx = s;
+idx(1:nspectra) = 1;
+idx(nspectra+1:end) = 2;
+pval = zeros(nfrq, npoints);
+
+for f=1:nfrq
+    for p = 1:npoints
+        s(1:nspectra) = angle(S1(f,p,1:nspectra));
+        s(nspectra+1:end) = angle(S2(f,p,1:nspectra));
+        %[pval(f,p) t] = circ_wwtest(s, idx);
+        [pval(f,p) t] = circ_ktest(reshape(angle(S1(f,p,1:nspectra)),1,nspectra),...
+            reshape(S2(f,p,1:nspectra),1,nspectra));
+    end
+end

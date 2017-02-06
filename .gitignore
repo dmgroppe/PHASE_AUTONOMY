@@ -1,0 +1,9 @@
+*.m~
+*.dat
+*.dat.*
+.DS_Store
+*.mat
+.idea
+.ipynb_checkpoints
+__pycache__
+diary

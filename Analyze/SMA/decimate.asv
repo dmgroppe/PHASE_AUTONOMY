@@ -1,0 +1,6 @@
+function [data] = decimate(ch, newsr, lowcut, highcut, ts)
+
+filtered = eegfilt(ts, oldsr, lowcut, highcut);
+skip = int16(oldsr/newsr);
+data.srate = oldsr/skip;
+data.ts = filtered(1:skip:end);

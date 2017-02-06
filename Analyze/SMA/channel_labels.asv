@@ -1,0 +1,33 @@
+function [clabels] = channel_labels()
+
+
+for i=1:32
+    clabels{i} = sprintf('GR%d',i);
+end
+
+clabel{1} = 'ATL1';
+clabel{2} = 'ATL2';
+clabel{9} = 'ATL9';
+
+
+for i=33:36
+    clabels{i} = sprintf('OFC%d',i-32)
+end
+
+for i=37:40
+    clabels{i} = sprintf('FP%d',i-36)
+end
+
+for i=41:44
+    clabels{i} = sprintf('AIH%d',i-40)
+end
+
+for i=45:50
+    clabels{i} = sprintf('PTL%d',i-44)
+end
+
+for i=51:5
+    clabels{i} = sprintf('PTL%d',i-44)
+end
+
+

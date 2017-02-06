@@ -1,0 +1,95 @@
+%USAGE: pcm = phase_coherence_matrix(data, aparams)
+%
+% Computes teh phase coherence over the entire duration for all
+% combinations of channels - return in pcm
+%
+%   EEG     - EEG struct from eeglab
+%   tstart  - start time in seconds
+%   tend    - end time in seconds
+
+function sync_matrix(data, srate, aparams, nfig, type)
+
+[nchan npoints] = size(data);
+h = zeros(nchan, npoints);
+for i=1:nchan
+    h(i,:) = hilbert(eegfilt(double(data(i,:)), srate, aparams.pc.lowcut, aparams.pc.highcut));
+end
+
+R = zeros(nchan, nchan);
+hj = h;
+nbins = aparams.pl.bins;
+probbins = aparams.pl.probbins;
+steps = aparams.pl.steps;
+ncycles = 5;
+window = ceil(1/((aparams.pc.lowcut + aparams.pc.highcut)/2) * ncycles *srate);
+%window = length(data);
+poverlap = 0.5;
+
+for i=1:nchan
+    base = h(i,:);
+    parfor j=i+1:nchan
+        switch type
+            case 'pc'
+                R(j,i) = phase_coherence(base, hj(j,:), window, poverlap);
+            case 'pl'
+                counts = bin_dphi(pdiff, nbins);
+                R(j,i) = getp(counts, nbins, probbins, steps);
+            case 'ic'
+                R(j,i) = imag_coherence(base, hj(j,:), window, poverlap);
+                
+        end
+    end
+end
+h = figure(nfig);
+set(h, 'Name', 'Phase Matrix');
+surf(R);
+view(0,90);
+xlabel('Channel number');
+ylabel('Channel number');
+
+function [ic] = imag_coherence(h1, h2, window, poverlap)
+%pdiff = phase_diff(unwrap(angle(h1)) - unwrap(angle(h2)));
+%pdiff = mod(unwrap(angle(h1)) - unwrap(angle(h2)), 2*pi);
+pdiff = unwrap(angle(h1)) - unwrap(angle(h2));
+a1 = abs(h1);
+a2 = abs(h2);
+npoints = length(h1);
+
+sstart = 1;
+send = window;
+
+ic = 0;
+segcount = 0;
+while (send <= npoints)
+    a1s = a1(sstart:send);
+    a2s = a2(sstart:send);
+    
+    ic = ic + mean(a1s.*a2s.*sin(pdiff(sstart:send)))/sqrt(mean(a1.^2)*mean(a2.^2));
+    segcount = segcount + 1;
+    sstart = floor(sstart + (1-poverlap)*window);
+    send = floor(sstart + window);
+end
+ic = ic/segcount;
+
+function [R] = phase_coherence(h1, h2, window, poverlap)
+%pdiff = phase_diff(unwrap(angle(h1)) - unwrap(angle(h2)));
+pdiff = unwrap(angle(h1)) - unwrap(angle(h2));
+npoints = length(h1);
+
+sstart = 1;
+send = window;
+
+R = 0;
+segcount = 0;
+while (send <= npoints)
+    ssum = sum(sin(pdiff(sstart:send)));
+    csum = sum(cos(pdiff(sstart:send)));
+    R = R + sqrt((ssum/npoints)^2 + (csum/npoints)^2);
+    
+    segcount = segcount + 1;
+    sstart = floor(sstart + (1-poverlap)*window);
+    send = floor(sstart + window);
+end
+R = R/segcount;
+
+

@@ -1,0 +1,4 @@
+function [franges] = franges()
+
+franges = struct('ID', {1,2,3,4,5,6}, 'lb', {1,4,9,14,31,51}, 'ub', {3,8,13,30,50,100},...
+    'Name', {'Delta','Theta','Alpha','Beta','Low Gamma', 'High Gamma'});

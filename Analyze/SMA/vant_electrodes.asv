@@ -1,0 +1,12 @@
+function [E] = vant_electrodes()
+
+count = 0;
+for i=1:4
+    for j=1:8
+        count = count + 1;
+        E{1}(i,j) = count;
+    end
+end
+
+E{2} = 33:36;
+
