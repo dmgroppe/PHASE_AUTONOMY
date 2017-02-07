@@ -1,4 +1,5 @@
 function [isokay, ax] = Szprec_rankts(F, srate, cfg, a_cfg, freq, sdir, nplots)
+% function [isokay, ax] = Szprec_rankts(F, srate, cfg, a_cfg, freq, sdir, nplots)
 
 if nargin < 6, nplots = 3; end;
 

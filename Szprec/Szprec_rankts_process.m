@@ -1,4 +1,5 @@
 function [] = Szprec_rankts_process(sdir, dosave)
+% function [] = Szprec_rankts_process(sdir, dosave)
 
 if nargin <2; dosave = 1; end;
 
@@ -50,7 +51,7 @@ for i=1:numel(sdir)
                 d = Szprec_sel_data(matrix_mo, matrix_bi, cfg);
 
                 h = figure(1);clf;
-                if a_cfg.rank_across_freqs
+                if a_cfg.rank_across_freqs % default is TRUE
                     %[~, ax] = Szprec_rankts(F, Sf, cfg, 0, sdir{i}, 4);
                     [~, ax] = Szprec_rankts(F, Sf, cfg, a_cfg, 0, sdir{i}, 4);
                     %fname = sprintf('All freqs - %s', files(j).name(1:end-4));
@@ -61,8 +62,7 @@ for i=1:numel(sdir)
                     plot_data(d, Sf, cfg, ax, sdir{i});
                     drawnow;
                     
-                    if dosave
-
+                    if dosave,
                         save_figure(h, prec_dir, fname, false);
 
                         % Save the figure file for later viewing

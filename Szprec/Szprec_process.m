@@ -1,4 +1,14 @@
 function [R] = Szprec_process(sdir)
+%function [R] = Szprec_process(sdir)
+%
+% Input:
+%  sdir - cell array of case codenames (e.g., {'AB','ST'}
+%
+% Output:
+%   R -
+%
+% Computes phase fluctuations at 6 frequency bands for all channels and
+% makes some figures
 
 global DATA_DIR;
 
@@ -26,7 +36,7 @@ for i=1:numel(sdir)
             % select the type of channel to use for analyses
             d = Szprec_sel_data(matrix_mo, matrix_bi, cfg);
             
-            if cfg.use_fband
+            if cfg.use_fband % FALSE is default
                 h = figure;clf;
                 fname = [files(j).name(1:(end-4)) '-F_FBAND'];
                 set(h, 'Name', fname);
@@ -46,7 +56,7 @@ for i=1:numel(sdir)
                     display(sprintf('Computing precursor for file - %s',files(j).name(1:(end-4))));
 
                     % Compute the precursor
-                    switch cfg.analysis
+                    switch cfg.analysis % desync is default
                         case 'phase_coherence'
                             afunc = @Szprec_phase_coherence_fun;
                         case 'desync'
@@ -75,7 +85,7 @@ for i=1:numel(sdir)
 %                     toc
                     
                     % Save the MATLAB figure
-                     % Chrck to see if the 'processed' director exists
+                     % Check to see if the 'processed' director exists
                     if ~exist(fullfile(pp), 'dir')
                         mkdir(fullfile(pp));
                     end
