@@ -3,7 +3,12 @@
 %%
 global DATA_DIR;
 DATA_DIR='/Users/dgroppe/ONGOING/TWH_DATA';
-list={'SV'};
+
+%DG added
+global ONSET_DIR;
+ONSET_DIR='/Users/dgroppe/Desktop/Dropbox/TWH_INFO/ONSET_TIMES_CLINICAL/';
+
+list={'NA'};
 
 %%
 Szprec_process(list); % Computes phase fluctuations at 6 frequency bands for all channels and makes some figures
@@ -11,6 +16,7 @@ Szprec_process(list); % Computes phase fluctuations at 6 frequency bands for all
 
 %%
 Szprec_rankts_process(list);
+
 
 %%
 chan=1;

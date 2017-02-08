@@ -50,10 +50,15 @@ for i=1:numel(sdir)
                 %Select the data to display
                 d = Szprec_sel_data(matrix_mo, matrix_bi, cfg);
 
+                % Get clinical onset
+                [day, szr]=day_and_szr_from_filename(files(j).name);
+                [onset_tpt, onset_tpt_bnd]=get_clinical_onset(sdir{i},day,szr);
+                
+                
                 h = figure(1);clf;
                 if a_cfg.rank_across_freqs % default is TRUE
                     %[~, ax] = Szprec_rankts(F, Sf, cfg, 0, sdir{i}, 4);
-                    [~, ax] = Szprec_rankts(F, Sf, cfg, a_cfg, 0, sdir{i}, 4);
+                    [~, ax] = Szprec_rankts(F, Sf, cfg, a_cfg, 0, sdir{i}, 4, onset_tpt_bnd);
                     if a_cfg.use_log,
                         %fname = sprintf('All freqs - %s', files(j).name(1:end-4));
                         fname = sprintf('AllFreqs-%s', files(j).name(1:end-4));
@@ -64,6 +69,11 @@ for i=1:numel(sdir)
                     
                     %plot the data on the same figure
                     plot_data(d, Sf, cfg, ax, sdir{i});
+                    v=axis();
+                    hold on;
+                    for onset_loop=1:2,
+                        plot([1 1]*onset_tpt_bnd(onset_loop)/Sf,v(3:4),'m-');
+                    end
                     drawnow;
                     
                     if dosave,

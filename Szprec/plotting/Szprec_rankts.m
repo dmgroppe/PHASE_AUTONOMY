@@ -1,5 +1,5 @@
-function [isokay, ax] = Szprec_rankts(F, srate, cfg, a_cfg, freq, sdir, nplots)
-% function [isokay, ax] = Szprec_rankts(F, srate, cfg, a_cfg, freq, sdir, nplots)
+function [isokay, ax] = Szprec_rankts(F, srate, cfg, a_cfg, freq, sdir, nplots, onset_tpt_bnd)
+% function [isokay, ax] = Szprec_rankts(F, srate, cfg, a_cfg, freq, sdir, nplots, onset_tpt_bnd)
 
 if nargin < 6, nplots = 3; end;
 
@@ -30,8 +30,14 @@ axis([T(1) T(end) -1 nchan+2 0 1]);
 set(gca, 'FontSize' , 7);
 set(gca, 'TickDir', 'out');
 view(0,90);
+hold on;
+axis tight;
+v=axis();
+for onset_loop=1:2,
+    plot([1 1]*onset_tpt_bnd(onset_loop)/srate,v(3:4),'k-');
+end
 %colorbar;
-xlabel('Time (s)');
+%xlabel('Time (s)'); % Redundant with other plots
 
 if a_cfg.rank_across_freqs
     title('All frequncy (mean)channel rank', 'FontSize', 7);
@@ -65,8 +71,14 @@ if ~isempty(a_cfg.f_caxis)
 end
 set(ax(2), 'FontSize' , 7, 'TickDir', 'out');
 view(0,90);
+axis tight;
+hold on;
+v=axis();
+for onset_loop=1:2,
+    plot([1 1]*onset_tpt_bnd(onset_loop)/srate,v(3:4),'k--');
+end
 %colorbar;
-xlabel('Time (s)');
+% xlabel('Time (s)'); % Redundant with other plots
 title('Normalized preecursor values', 'FontSize', 7);
 
 %linkaxes(ax, 'xy');
