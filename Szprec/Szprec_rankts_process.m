@@ -54,11 +54,15 @@ for i=1:numel(sdir)
                 if a_cfg.rank_across_freqs % default is TRUE
                     %[~, ax] = Szprec_rankts(F, Sf, cfg, 0, sdir{i}, 4);
                     [~, ax] = Szprec_rankts(F, Sf, cfg, a_cfg, 0, sdir{i}, 4);
-                    %fname = sprintf('All freqs - %s', files(j).name(1:end-4));
-                    fname = sprintf('AllFreqs-%s', files(j).name(1:end-4));
+                    if a_cfg.use_log,
+                        %fname = sprintf('All freqs - %s', files(j).name(1:end-4));
+                        fname = sprintf('AllFreqs-%s', files(j).name(1:end-4));
+                    else
+                        fname = sprintf('AllFreqs-%sAsin', files(j).name(1:end-4));
+                    end
                     set(h, 'Name', fname);
-
-                    %plot the data on the same figure                  
+                    
+                    %plot the data on the same figure
                     plot_data(d, Sf, cfg, ax, sdir{i});
                     drawnow;
                     

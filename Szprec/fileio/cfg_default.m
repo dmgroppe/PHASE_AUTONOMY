@@ -16,6 +16,7 @@ cfg.rank_mint = 750;                % Number points to use for the window rank (
 cfg.rank_percentage = 0.8;          % The frank of points in a time window that need to be above rank_min (0-1);
 cfg.rank_min = 0.95;                % The rank above which a channel value be considered to be included in the rank window (0-1)
 cfg.useZ = 1;                       % Whether to use Z value for ranking the channels (for fband analysis only)
+cfg.use_log=false;                  % If true apply log transform to min F values, otherwise use asin transform
 cfg.plot_multichan_caxis = [];      % When doing multichan plot can specific the caxis range
 cfg.exclude_bad_channels = true;    % Exclude bad channels form ranking process
 cfg.rank_across_freqs = true;       % This option takes the mean of F across all frequncies and saves this result

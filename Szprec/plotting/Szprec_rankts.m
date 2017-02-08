@@ -45,11 +45,23 @@ ax_p1 = re_label_yaxis(sdir, cfg, T, nchan);
 ax(2) = subplot(nplots,1,2);
 
 %imagesc(T,1:nchan,zscore(log(fr))');
-pf = p_norm(fr)';
+if a_cfg.use_log,
+    pf = p_norm(fr)';
+else
+    % use asin trans
+    fr(fr>1)=1;
+    fr(fr<0)=0;
+    pf=asin_trans_phase_aut(fr)';
+end
 imagesc(T,1:nchan,pf);
 %axis([T(1) T(end) -1 nchan+2 0 1]);
 if ~isempty(a_cfg.f_caxis)
-    caxis(a_cfg.f_caxis);
+    if a_cfg.use_log,
+        caxis(a_cfg.f_caxis);
+    else
+        % use default max-min scaling
+        %caxis([0 90]);
+    end
 end
 set(ax(2), 'FontSize' , 7, 'TickDir', 'out');
 view(0,90);
