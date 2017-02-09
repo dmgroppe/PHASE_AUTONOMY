@@ -24,13 +24,6 @@ else
     F_data_file = fullfile(fpath, [sz_name suffix(1:end-1) '.mat']);
 end
 
-% 
-% if exist(F_file, 'file') && plot_fig
-%     open(F_file);
-%     % [rank, f_out] = Szprec_rank(F,cfg, a_cfg, pt_name);
-%     % plot_f(f_out,matrix_bi,rank,Sf,cfg,pt_name, 5);
-% end
-
 if exist(F_data_file, 'file')
     display(sprintf('---------------Loading - %s', sz_name));
     load(F_data_file);
