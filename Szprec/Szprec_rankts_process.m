@@ -70,9 +70,11 @@ for i=1:numel(sdir)
                     %plot the data on the same figure
                     plot_data(d, Sf, cfg, ax, sdir{i});
                     v=axis();
-                    hold on;
-                    for onset_loop=1:2,
-                        plot([1 1]*onset_tpt_bnd(onset_loop)/Sf,v(3:4),'m-');
+                    if ~isnan(onset_tpt_bnd(1))
+                        hold on;
+                        for onset_loop=1:2,
+                            plot([1 1]*onset_tpt_bnd(onset_loop)/Sf,v(3:4),'m-');
+                        end
                     end
                     drawnow;
                     

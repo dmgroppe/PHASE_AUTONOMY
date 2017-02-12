@@ -1,5 +1,6 @@
-function [nf] =  p_norm(f, fracDiscard)
-
+function [lf] =  p_norm(f, fracDiscard)
+%function [lf] =  p_norm(f, fracDiscard)
+%
 %Key normalzation of data, by log tranforming since the values are non-normal,
 %and then shifting such that fracDiscard are set to zero.
 
@@ -11,7 +12,9 @@ nf = zeros(npoints, nchan);
 for i=1:nchan   
     [mu sigma] = normfit(lf(:,i));
     s = norminv(fracDiscard,mu,sigma);
+    %     lf(lf(:,i)<s,i)=0;
     nf(:,i) = lf(:,i)- s;
     nf(find(nf < 0)) = 0;
 end
+lf=nf;
 

@@ -33,8 +33,10 @@ view(0,90);
 hold on;
 axis tight;
 v=axis();
-for onset_loop=1:2,
-    plot([1 1]*onset_tpt_bnd(onset_loop)/srate,v(3:4),'k-');
+if ~isnan(onset_tpt_bnd(1))
+    for onset_loop=1:2,
+        plot([1 1]*onset_tpt_bnd(onset_loop)/srate,v(3:4),'k-');
+    end
 end
 %colorbar;
 %xlabel('Time (s)'); % Redundant with other plots
@@ -62,20 +64,22 @@ end
 imagesc(T,1:nchan,pf);
 %axis([T(1) T(end) -1 nchan+2 0 1]);
 if ~isempty(a_cfg.f_caxis)
-    if a_cfg.use_log,
-        caxis(a_cfg.f_caxis);
-    else
-        % use default max-min scaling
-        %caxis([0 90]);
-    end
+    %     % use default max-min scaling
+    %     if a_cfg.use_log,
+    %         caxis(a_cfg.f_caxis);
+    %     else
+    %         %caxis([0 90]);
+    %     end
 end
 set(ax(2), 'FontSize' , 7, 'TickDir', 'out');
 view(0,90);
 axis tight;
 hold on;
 v=axis();
-for onset_loop=1:2,
-    plot([1 1]*onset_tpt_bnd(onset_loop)/srate,v(3:4),'k--');
+if ~isnan(onset_tpt_bnd(1))
+    for onset_loop=1:2,
+        plot([1 1]*onset_tpt_bnd(onset_loop)/srate,v(3:4),'k--');
+    end
 end
 %colorbar;
 % xlabel('Time (s)'); % Redundant with other plots

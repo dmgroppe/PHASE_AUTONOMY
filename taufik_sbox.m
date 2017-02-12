@@ -14,8 +14,13 @@ list={'NA'};
 Szprec_process(list); % Computes phase fluctuations at 6 frequency bands for all channels and makes some figures
 
 
-%%
+%% Computes mean F score and ranks of F score across frequencies
 Szprec_rankts_process(list);
+
+
+%% Paige-Hinkley
+% list=get_szlist('NA');
+phRunSubject(list);
 
 
 %%

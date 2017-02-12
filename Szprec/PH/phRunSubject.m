@@ -9,7 +9,10 @@ else
 end
 
 for i=1:numel(pt_names)
-    list = szlist(pt_names{i});
+    %list = szlist(pt_names{i});
+    warning('Using Groppe hack because I do not have szlist.mat files for each patient.');
+    list=get_szlist(pt_names{i});
+    
     phProcess(list,1, cfg);
     phStats(list, atype, cfg, 1);
     rankOnSchematic(pt_names{i}, atype);

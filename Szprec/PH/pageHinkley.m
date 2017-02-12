@@ -1,6 +1,7 @@
 function [R] = pageHinkley(sz_name, a_cfg, dosave)
 
-global DATA_PATH;
+% global DATA_PATH; %DG replaced DATA_PATH with DATA_DIR
+global DATA_DIR;
 
 if nargin < 3; dosave = 1; end;
 if nargin < 2;
@@ -9,19 +10,23 @@ end;
 
 pt_name = strtok(sz_name, '_');
 
-if a_cfg.use_fband
-    display('FBAND analysis selected...')
+if a_cfg.use_fband,
+    display('FBAND analysis selected...');
     suffix = '_F_FBAND';
-    fpath = make_file_name(DATA_PATH, sz_name, 'Bipolar_FBAND', suffix);
+    fpath = make_file_name(DATA_DIR, sz_name, 'Bipolar_FBAND', suffix);
     %file_name = sprintf('%s%s_%d_%dHz.mat', sz_name,suffix,a_cfg.fband(1), a_cfg.fband(2));
     F_data_file = fullfile(fpath, [sz_name suffix '.mat']);
     
 else
-    display('ADAPTIVE DERIV selected...')
-    suffix = '_F\';
-    fpath = make_file_name(DATA_PATH, sz_name, 'Adaptive deriv', suffix);
-    %F_file = fullfile(fpath, ['All freqs - ' sz_name suffix(1:end-1) '.fig']);
-    F_data_file = fullfile(fpath, [sz_name suffix(1:end-1) '.mat']);
+    display('ADAPTIVE DERIV selected...');
+    [fstem, extsn]=strtok(sz_name,'.');
+    fpath = fullfile(DATA_DIR,'Szprec',pt_name,'Processed',[fstem '_F']);
+    F_data_file=fullfile(fpath,[fstem '_F' extsn]);
+    %DG commented out
+    %     suffix = '_F\';
+    %     fpath = make_file_name(DATA_DIR, sz_name, 'Adaptive deriv', suffix);
+    %     %F_file = fullfile(fpath, ['All freqs - ' sz_name suffix(1:end-1) '.fig']);
+    %     F_data_file = fullfile(fpath, [sz_name suffix(1:end-1) '.mat']);
 end
 
 if exist(F_data_file, 'file')
@@ -47,14 +52,14 @@ else
     % Normalize
     S = fNorm(F, pt_name, a_cfg);
 end
-
+ 
 [npoints, nchan] = size(S);
 t = (0:(npoints-1))/Sf;
 
 [bad_m_channels, bad_b_channels] = bad_channels_get(pt_name);
 
 
-% Plot the precursor values
+%% Plot the precursor values
 h1 = figure(1);clf;
 set(h1, 'Name', sz_name);
 subplot(2,1,1);
@@ -93,18 +98,35 @@ if 1
     hp = U;
     A = U;
     surr_A = U;
-    parfor i=s:e
-        if isempty(find(i == bad_b_channels,1))
-            display(sprintf('Working on channel #%d', i));
-            [hp{i}, A{i}, U{i}, pval{i}, surr_A{i}] = change_detect(S(a_ind,i), a_cfg.stats.bias, srate*a_cfg.stats.sm_window,...
-                a_cfg.stats.nsurr, a_cfg.stats.lbp, 0);
-        else
-            hp{i} = [];
-            A{i} = [];
-            pval{i} = [];
-            surr_A{i} = [];
-            U{i} = [];
-            surr_A{i} = [];
+    if verLessThan('matlab','8')
+        for i=s:e
+            if isempty(find(i == bad_b_channels,1))
+                display(sprintf('Working on channel #%d', i));
+                [hp{i}, A{i}, U{i}, pval{i}, surr_A{i}] = change_detect(S(a_ind,i), a_cfg.stats.bias, srate*a_cfg.stats.sm_window,...
+                    a_cfg.stats.nsurr, a_cfg.stats.lbp, 0);
+            else
+                hp{i} = [];
+                A{i} = [];
+                pval{i} = [];
+                surr_A{i} = [];
+                U{i} = [];
+                surr_A{i} = [];
+            end
+        end
+    else
+        parfor i=s:e
+            if isempty(find(i == bad_b_channels,1))
+                display(sprintf('Working on channel #%d', i));
+                [hp{i}, A{i}, U{i}, pval{i}, surr_A{i}] = change_detect(S(a_ind,i), a_cfg.stats.bias, srate*a_cfg.stats.sm_window,...
+                    a_cfg.stats.nsurr, a_cfg.stats.lbp, 0);
+            else
+                hp{i} = [];
+                A{i} = [];
+                pval{i} = [];
+                surr_A{i} = [];
+                U{i} = [];
+                surr_A{i} = [];
+            end
         end
     end
 else
@@ -119,6 +141,9 @@ else
     end
 end
 
+
+
+%%
 dU = zeros(length(S),nchan);
 for j=1:numel(U)
     if ~isempty(U{j})
@@ -128,7 +153,7 @@ for j=1:numel(U)
 end
 toc
 
-% Compute new p values by combining surrogate values from all channels.
+%% Compute new p values by combining surrogate values from all channels.
 
 all_surr_A = [];
 if a_cfg.stats.nsurr 
@@ -148,7 +173,6 @@ if a_cfg.stats.nsurr
 end
 
 
-
 %% Plot the Page-Hinkley values
 cm = cbrewer('div', 'RdYlBu', 64);
 colormap(flipud(cm));
@@ -156,7 +180,7 @@ colormap(flipud(cm));
 subplot(2,1,2);
 imagesc(t, 1:nchan, dU');
 
-if a_cfg.stats.uCaxis
+if isfield(a_cfg.stats,'uCaxis') && ~isempty(a_cfg.stats.uCaxis)
     caxis(a_cfg.stats.uCaxis);
 end
 
@@ -205,6 +229,7 @@ for i=s:e
     end
 end
 
+ 
 
 %% Sort the changes and plot the results
 
@@ -329,18 +354,25 @@ R = struct_from_list('hp', hp, 'A', A, 'U', U, 'pval', pval,...
     'all_surr_A', all_surr_A, 'srate', srate);
 
 if dosave
-    saveas(h1, fname);
+    if ~verLessThan('matlab','8')
+        % saveas doesn't work on DG machine
+        saveas(h1, fname);
+    end
     save(fname, 'R');
     save_figure(h1, fdir, [sz_name '-PH'], false);
 
     fname = fullfile(fdir, [sz_name '-PH Summary']);
-    saveas(h2, fname);
+    if ~verLessThan('matlab','8')
+        % saveas doesn't work on DG machine
+        saveas(h2, fname);
+    end
     save_figure(h2, fdir, [sz_name '-PH Summary'], false);
 end
 
+
 %% Support functions
-function [fname] = make_file_name(DATA_PATH, sz_name, folder, suffix)
+function [fname] = make_file_name(DATA_DIR, sz_name, folder, suffix)
 pt_name = strtok(sz_name, '_');
-fname = fullfile(DATA_PATH, 'Szprec',  pt_name, 'Processed', folder,...
+fname = fullfile(DATA_DIR, 'Szprec',  pt_name, 'Processed', folder,...
         [sz_name suffix]);
         
