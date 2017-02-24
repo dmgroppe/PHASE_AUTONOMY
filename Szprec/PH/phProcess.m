@@ -16,7 +16,7 @@ if nargin < 3; cfg = cfg_default();end;
 
 % Since there is an amplitude analysis (NOW) these values are specific to the PH
 % analysis pipelines
-% 
+%
 % cfg.stats.prec_weight = 'mean'; % Works best with taking the mean
 % cfg.stats.freqs_to_use = 1:6;
 
@@ -36,80 +36,80 @@ function [cfg] = get_cfg(sdir, cfg)
 if ~cfg.useFilterBank
     switch sdir
         case 'NA'
-    %         cfg.stats.bias = 0.01;
-    %         cfg.stats.alpha = 0.01;
-    %         cfg.stats.lbp = 5;
-    %         cfg.stats.sm_window = 1; % smoothing window in seconds
+            %         cfg.stats.bias = 0.01;
+            %         cfg.stats.alpha = 0.01;
+            %         cfg.stats.lbp = 5;
+            %         cfg.stats.sm_window = 1; % smoothing window in seconds
             % For hilbert analysis
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-
-       case 'CT'
+            
+        case 'CT'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.005;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'SP'
+        case 'SP'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'IM'
+        case 'IM'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'MSt'
+        case 'MSt'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.005;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'ME'
+        case 'ME'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'AV'
+        case 'AV'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
             cfg.stats.use_szend = false;
-       case 'SV'
+        case 'SV'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.0001;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 0.25; % smoothing window in seconds
-       case 'BH'
+        case 'BH'
             cfg.stats.alpha = 0.01;
             cfg.stats.bias = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'CJ'
+        case 'CJ'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'TF'
+        case 'TF'
             cfg.stats.alpha = 0.005;
             cfg.stats.lbp = 5;
             cfg.stats.bias = 0.01;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'CO'
+        case 'CO'
             cfg.stats.mint = 10; % Stats are done only after this time (s)
             cfg.stats.bias = 0.02;
             cfg.stats.lbp = 10;
             cfg.stats.sm_window = 1; % smoothing window in seconds
             cfg.stats.global_p = true;
-       case 'LD'
+        case 'LD'
             cfg.stats.mint = 10; % Stats are done only after this time (s)
             cfg.stats.bias = 0.01;
             cfg.stats.lbp = 10;
             cfg.stats.sm_window = 1; % smoothing window in seconds
             cfg.stats.global_p = true;
-       case 'SK'
+        case 'SK'
             cfg.stats.mint = 10; % Stats are done only after this time (s)
             cfg.stats.bias = 0.05;
             cfg.stats.lbp = 10;
@@ -119,74 +119,74 @@ if ~cfg.useFilterBank
 else
     switch sdir
         case 'NA'
-    %         cfg.stats.bias = 0.01;
-    %         cfg.stats.alpha = 0.01;
-    %         cfg.stats.lbp = 5;
-    %         cfg.stats.sm_window = 1; % smoothing window in seconds
+            %         cfg.stats.bias = 0.01;
+            %         cfg.stats.alpha = 0.01;
+            %         cfg.stats.lbp = 5;
+            %         cfg.stats.sm_window = 1; % smoothing window in seconds
             % For hilbert analysis
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-
-       case 'CT'
+            
+        case 'CT'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.005;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'SP'
+        case 'SP'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'IM'
+        case 'IM'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'MSt'
+        case 'MSt'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.005;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'ME'
+        case 'ME'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'AV'
+        case 'AV'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
             cfg.stats.use_szend = false;
-       case 'SV'
+        case 'SV'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.0001;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 0.25; % smoothing window in seconds
-       case 'BH'
+        case 'BH'
             cfg.stats.alpha = 0.01;
             cfg.stats.bias = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'CJ'
+        case 'CJ'
             cfg.stats.bias = 0.01;
             cfg.stats.alpha = 0.01;
             cfg.stats.lbp = 5;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'TF'
+        case 'TF'
             cfg.stats.alpha = 0.005;
             cfg.stats.lbp = 5;
             cfg.stats.bias = 0.01;
             cfg.stats.sm_window = 1; % smoothing window in seconds
-       case 'CO'
+        case 'CO'
             cfg.stats.mint = 10; % Stats are done only after this time (s)
             cfg.stats.bias = 0.02;
             cfg.stats.lbp = 10;
             cfg.stats.sm_window = 1; % smoothing window in seconds
             cfg.stats.global_p = true;
-       case 'LD'
+        case 'LD'
             cfg.stats.mint = 10; % Stats are done only after this time (s)
             cfg.stats.bias = 0.01;
             cfg.stats.lbp = 10;

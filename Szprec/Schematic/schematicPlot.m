@@ -1,10 +1,11 @@
 function [ok] = schematicPlot(pt_name)
 
-global DATA_PATH;
+%global DATA_PATH; % DG changing all DATA_PATH to DATA_DIR in all functions
+global DATA_DIR;
 
 ok = 0;
 
-fname = fullfile(DATA_PATH, 'Szprec', pt_name, 'Szprec_schematic.tif');
+fname = fullfile(DATA_DIR, 'Szprec', pt_name, 'Szprec_schematic.tif');
 if exist(fname, 'file')
     A = imread(fname);
 

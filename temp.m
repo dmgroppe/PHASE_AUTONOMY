@@ -1,4 +1,27 @@
 %%
+
+
+%% 
+Fnew=F;
+load('/Users/dgroppe/ONGOING/TWH_DATA/Szprec/NA/Processed/NA_d1_sz2_F/NA_d1_sz2_F_TVworks.mat','F');
+
+
+%% Plot my vs Taufik F data at first channel
+figure(1); clf;
+subplot(121);
+imagesc(squeeze(F(:,:,1))); colorbar;
+title('Taufik F, Chan 1');
+xlabel('Time');
+ylabel('Freq Band');
+
+subplot(122);
+imagesc(squeeze(Fnew(:,:,1))); colorbar;
+title('Github F, Chan 1');
+xlabel('Time');
+ylabel('Freq Band');
+
+
+%%
 h2 = figure(2); clf;
 set(h2, 'Name', sprintf('Szprec_page_hinkley summary: %s', sz_name));
 subplot(2,2,1);

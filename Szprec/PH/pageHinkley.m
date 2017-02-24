@@ -8,6 +8,12 @@ if nargin < 2;
     a_cfg = cfg_default();
 end;
 
+%DG added, gets rid of .mat extension if there
+dot_id=find(sz_name=='.');
+if ~isempty(dot_id),
+   sz_name=sz_name(1:dot_id-1); 
+end
+
 pt_name = strtok(sz_name, '_');
 
 if a_cfg.use_fband,
@@ -21,7 +27,7 @@ else
     display('ADAPTIVE DERIV selected...');
     [fstem, extsn]=strtok(sz_name,'.');
     fpath = fullfile(DATA_DIR,'Szprec',pt_name,'Processed',[fstem '_F']);
-    F_data_file=fullfile(fpath,[fstem '_F' extsn]);
+    F_data_file=fullfile(fpath,[fstem '_F.mat']);
     %DG commented out
     %     suffix = '_F\';
     %     fpath = make_file_name(DATA_DIR, sz_name, 'Adaptive deriv', suffix);
@@ -358,15 +364,15 @@ if dosave
         % saveas doesn't work on DG machine
         saveas(h1, fname);
     end
-    save(fname, 'R');
+    save([fname '.mat'], 'R');
     save_figure(h1, fdir, [sz_name '-PH'], false);
 
-    fname = fullfile(fdir, [sz_name '-PH Summary']);
+    fname = fullfile(fdir, [sz_name '-PH_Summary']);
     if ~verLessThan('matlab','8')
         % saveas doesn't work on DG machine
         saveas(h2, fname);
     end
-    save_figure(h2, fdir, [sz_name '-PH Summary'], false);
+    save_figure(h2, fdir, [sz_name '-PH_Summary'], false);
 end
 
 

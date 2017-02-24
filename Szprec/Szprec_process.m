@@ -18,6 +18,15 @@ plotdataonly = 0;
 
 cfg = cfg_default()
 
+% DG hack ??
+warning('DG is using some hard coded cfg values to replicate old results. The cfg values are not the most current.');
+cfg.useFilterBank=1;
+cfg.stats.sm_window=0.5;
+cfg.exclude_bad_channels=0;
+cfg.f_caxis=[]; 
+%load('/Users/dgroppe/ONGOING/TWH_DATA/Szprec/NA/Processed/NA_d1_sz2_F/NA_d1_sz2_F_TVworks.mat','cfg');
+
+
 for i=1:numel(sdir)
     dp = fullfile(DATA_DIR,'Szprec',sdir{i}, 'Data');
     pp = fullfile(DATA_DIR, 'Szprec',sdir{i}, 'Processed');
@@ -34,7 +43,7 @@ for i=1:numel(sdir)
             nchan = size(matrix_bi,2);
             
             % select the type of channel to use for analyses
-            d = Szprec_sel_data(matrix_mo, matrix_bi, cfg);
+            d = Szprec_sel_data(matrix_mo, matrix_bi, cfg); %d is the raw data
             
             if cfg.use_fband % FALSE is default
                 h = figure;clf;
@@ -107,6 +116,7 @@ for i=1:numel(sdir)
                     % Save the precursor and all associated data
                     %ORIG save_file = fullfile(pp, [files(j).name(1:(end-4)) '_F.mat']);
                     save_file = fullfile(f_dir, [files(j).name(1:(end-4)) '_F.mat']);
+                    fprintf('Saving file to %s\n',save_file);
                     if exist('group_end_index', 'var')
                         save(save_file, 'F', 'Sf', 'cfg', 'matrix_bi',...
                             'matrix_mo', 'group_end_index');

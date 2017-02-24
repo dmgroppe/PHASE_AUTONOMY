@@ -1,6 +1,7 @@
 function [R] = phStats(sz_names, atype, a_cfg, dosave)
 
-global DATA_PATH;
+% global DATA_PATH;
+global DATA_DIR
 
 if nargin < 4; dosave = 1; end;
 if nargin < 3; a_cfg = cfg_default(); end;
@@ -160,13 +161,15 @@ R = struct_from_list('n_sz', n_sz, 'plot_values', plot_values, 'sz_names', sz_na
     'mean_loc', mean_loc, 'ch_locs', ch_locs);
 
 
-if a_cfg.use_fband
-    subdir = '\Processed\Bipolar_FBAND';
-else
-    subdir = '\Processed\Adaptive deriv';
-end
+% if a_cfg.use_fband
+%     subdir = '\Processed\Bipolar_FBAND';
+% else
+%     subdir = '\Processed\Adaptive deriv';
+% end
+% DG change
+subdir = 'Processed';
 
-summary_file = fullfile(DATA_PATH, 'Szprec', pt_name, subdir,...
+summary_file = fullfile(DATA_DIR, 'Szprec', pt_name, subdir,...
         [pt_name '_PH_Summary_' atype '.mat']);
     
 if dosave

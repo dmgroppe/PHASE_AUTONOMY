@@ -12,5 +12,5 @@ psbl_files=dir(in_path);
 n_files=length(psbl_files);
 szlist=cell(n_files,1);
 for a=1:n_files,
-    szlist{a}=psbl_files(a).name;
+    szlist{a}=strtok(psbl_files(a).name,'.'); %remove extension
 end
